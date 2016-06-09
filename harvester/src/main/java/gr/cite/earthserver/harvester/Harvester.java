@@ -1,14 +1,15 @@
 package gr.cite.earthserver.harvester;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,29 +17,59 @@ import org.slf4j.LoggerFactory;
 public class Harvester {
 	private static final Logger logger = LoggerFactory.getLogger(Harvester.class);
 
-	private Set<Harvestable> harvestables;
+	private Map<Harvestable, ScheduledExecutorService> harvestables;
 
-	public Harvester(Set<Harvestable> harvestables) {
+	public Harvester(Map<Harvestable, ScheduledExecutorService> harvestables) {
 		this.harvestables = harvestables;
 	}
 
 	public Harvester() {
-		this(new HashSet<Harvestable>());
+		this(new HashMap<Harvestable, ScheduledExecutorService>());
 	}
 
 	public void register(Harvestable harvestable) {
-		harvestables.add(harvestable);
+		harvestables.put(harvestable, null);
+	}
+
+	/**
+	 * registers a {@link Harvestable} for independent periodic execution,
+	 * according to it's given {@link Schedule}
+	 * 
+	 * @param harvestable
+	 * @param schedule
+	 */
+	public void register(Harvestable harvestable, Schedule schedule) {
+
+		ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+
+		executorService.scheduleAtFixedRate(new HarvestableTask(harvestable), schedule.getInitialDelay(),
+				schedule.getPeriod(), schedule.getTimeUnit());
+
+		harvestables.put(harvestable, executorService);
 	}
 
 	public void unregister(Harvestable harvestable) {
-		harvestables.remove(harvestable);
+
+		if (harvestables.containsKey(harvestable)) {
+
+			ScheduledExecutorService executorService = harvestables.get(harvestable);
+
+			if (executorService != null) {
+				executorService.shutdown();
+			}
+
+			harvestables.remove(harvestable);
+		}
 	}
 
+	/**
+	 * harvest now, all registered {@link Harvestable harvestables}
+	 */
 	public void harvest() {
 		List<Future<String>> futures = new ArrayList<Future<String>>();
-		ExecutorService executor = Executors.newFixedThreadPool(3);
+		ExecutorService executor = Executors.newFixedThreadPool(5);
 
-		for (Harvestable harvestable : harvestables) {
+		for (Harvestable harvestable : harvestables.keySet()) {
 			futures.add(executor.submit(new Callable<String>() {
 
 				@Override
@@ -48,8 +79,8 @@ public class Harvester {
 			}));
 		}
 		executor.shutdown();
-		
-		for(Future<String> future : futures) {
+
+		for (Future<String> future : futures) {
 			try {
 				String collectionId = future.get();
 				logger.info("Collection " + collectionId + " successfully harvested");
@@ -60,4 +91,5 @@ public class Harvester {
 			}
 		}
 	}
+
 }
