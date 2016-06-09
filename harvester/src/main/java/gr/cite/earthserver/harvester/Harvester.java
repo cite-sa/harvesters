@@ -27,6 +27,13 @@ public class Harvester {
 		this(new HashMap<Harvestable, ScheduledExecutorService>());
 	}
 
+	/**
+	 * 
+	 * @param harvestable
+	 *            it is recommended to implement an {@code equals} and
+	 *            {@code hash} method in the implementation of
+	 *            {@linkplain Harvestable}
+	 */
 	public void register(Harvestable harvestable) {
 		harvestables.put(harvestable, null);
 	}
@@ -36,6 +43,9 @@ public class Harvester {
 	 * according to it's given {@link Schedule}
 	 * 
 	 * @param harvestable
+	 *            it is recommended to implement an {@code equals} and
+	 *            {@code hash} method in the implementation of
+	 *            {@linkplain Harvestable}
 	 * @param schedule
 	 */
 	public void register(Harvestable harvestable, Schedule schedule) {
@@ -59,6 +69,9 @@ public class Harvester {
 			}
 
 			harvestables.remove(harvestable);
+
+		} else {
+			logger.warn("harvestable " + harvestable.toString() + " was not found in harvester.");
 		}
 	}
 
@@ -66,6 +79,8 @@ public class Harvester {
 	 * harvest now, all registered {@link Harvestable harvestables}
 	 */
 	public void harvest() {
+		logger.info("Harvesting all registered Harvestable sources...");
+
 		List<Future<String>> futures = new ArrayList<Future<String>>();
 		ExecutorService executor = Executors.newFixedThreadPool(5);
 
@@ -90,6 +105,9 @@ public class Harvester {
 				logger.error(e.getMessage(), e);
 			}
 		}
+
+		logger.info("Harvested all registered Harvestable sources");
+
 	}
 
 }
