@@ -68,14 +68,13 @@ public class WCSHarvestableEndpoint implements Harvestable {
 			collectionId = femmeClient.insert(serverCollection);
 
 			List<Future<String>> futures = new ArrayList<Future<String>>();
-			ExecutorService executor = Executors.newFixedThreadPool(20);
-			
+			ExecutorService executor = Executors.newFixedThreadPool(40);
 			
 			for (String coverageId : coverageIds) {
 				futures.add(executor.submit(new RetrieveAndStoreCoverageCallable(wcsRequestBuilder, femmeClient, collectionId, coverageId)));
-/*				WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(id).build().get();
+				WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
 				DataElement coverageDataElement = WCSFemmeClient.toDataElement(describeCoverage);
-				femmeClient.addToCollection(coverageDataElement, collectionId);*/
+				femmeClient.addToCollection(coverageDataElement, collectionId);
 			}
 			
 			executor.shutdown();
