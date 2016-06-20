@@ -19,12 +19,13 @@ public class Harvester {
 
 	private Map<Harvestable, ScheduledExecutorService> harvestables;
 
-	public Harvester(Map<Harvestable, ScheduledExecutorService> harvestables) {
-		this.harvestables = harvestables;
-	}
-
+	
 	public Harvester() {
 		this(new HashMap<Harvestable, ScheduledExecutorService>());
+	}
+	
+	public Harvester(Map<Harvestable, ScheduledExecutorService> harvestables) {
+		this.harvestables = harvestables;
 	}
 
 	/**
@@ -56,8 +57,10 @@ public class Harvester {
 				schedule.getPeriod(), schedule.getTimeUnit());
 
 		harvestables.put(harvestable, executorService);
+		
+		logger.info("Endpoint " + harvestable.getEndpoint() + " has been registered successfully");
 	}
-
+	
 	public void unregister(Harvestable harvestable) {
 
 		if (harvestables.containsKey(harvestable)) {
@@ -69,6 +72,8 @@ public class Harvester {
 			}
 
 			harvestables.remove(harvestable);
+			
+			logger.info("Endpoint " + harvestable.getEndpoint() + " has been unregistered successfully");
 
 		} else {
 			logger.warn("harvestable " + harvestable.toString() + " was not found in harvester.");

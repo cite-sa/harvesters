@@ -3,6 +3,7 @@ package gr.cite.earthserver.harvester;
 import org.junit.Before;
 import org.junit.Test;
 
+import gr.cite.earthserver.harvester.Harvester;
 import gr.cite.earthserver.harvester.wcs.WCSHarvestableEndpoint;
 import gr.cite.earthserver.wcs.femme.client.WCSFemmeClient;
 import gr.cite.femme.client.FemmeClient;
