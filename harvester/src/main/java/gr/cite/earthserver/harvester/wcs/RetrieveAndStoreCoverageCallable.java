@@ -2,17 +2,15 @@ package gr.cite.earthserver.harvester.wcs;
 
 import java.util.concurrent.Callable;
 
-import gr.cite.earthserver.wcs.client.WCSRequestBuilder;
-import gr.cite.earthserver.wcs.client.WCSResponse;
-import gr.cite.earthserver.wcs.femme.client.WCSFemmeClient;
-import gr.cite.femme.client.FemmeClient;
-import gr.cite.femme.core.DataElement;
+import gr.cite.earthserver.wcs.adaper.api.WCSAdapterAPI;
+import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
+import gr.cite.earthserver.wcs.core.WCSResponse;
 
 public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 	
 	private WCSRequestBuilder wcsRequestBuilder;
 	
-	private FemmeClient femmeClient;
+	private WCSAdapterAPI adapter;
 	
 	private String collectionId;
 	
@@ -20,11 +18,11 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 	
 	public RetrieveAndStoreCoverageCallable(
 			WCSRequestBuilder wcsRequestBuilder,
-			FemmeClient femmeClient,
+			WCSAdapterAPI adapter,
 			String collectionId,
 			String coverageId) {
 		this.wcsRequestBuilder = wcsRequestBuilder;
-		this.femmeClient = femmeClient;
+		this.adapter = adapter;
 		this.collectionId = collectionId;
 		this.coverageId = coverageId;
 	}
@@ -32,14 +30,12 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 	@Override
 	public String call() throws Exception {
 		WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
-		DataElement coverageDataElement = WCSFemmeClient.toDataElement(describeCoverage);
 		
 		if(collectionId != null) {
-			return femmeClient.addToCollection(coverageDataElement, collectionId);
+			return adapter.addCoverage(describeCoverage, collectionId);
 		} else {
-			return femmeClient.insert(coverageDataElement);
+			return adapter.insertCoverage(describeCoverage);
 		}
 	}
-	
 	
 }
