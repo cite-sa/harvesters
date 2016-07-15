@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import gr.cite.earthserver.harvester.Harvester;
 import gr.cite.earthserver.harvester.Schedule;
 import gr.cite.earthserver.harvester.wcs.WCSHarvestableEndpoint;
+import gr.cite.earthserver.wcs.adapter.WCSAdapter;
 import gr.cite.femme.client.FemmeClient;
 
 @Path("/harvester")
@@ -24,7 +25,7 @@ public class HarvesterResource {
 	private Harvester harvester;
 
 	@Inject
-	private FemmeClient femmeClient;
+	private WCSAdapter adapter;
 
 	@GET
 	@Path("ping")
@@ -54,7 +55,7 @@ public class HarvesterResource {
 			new Schedule(period.longValue(), TimeUnit.valueOf(timeUnit))
 			: new Schedule(initialDelay, period, TimeUnit.valueOf(timeUnit)); */
 		
-		harvester.register(new WCSHarvestableEndpoint(endpoint, femmeClient), schedule);
+		harvester.register(new WCSHarvestableEndpoint(endpoint, adapter), schedule);
 		
 		return Response.ok().build();
 	}

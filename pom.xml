@@ -43,7 +43,7 @@
 		</dependency>
 		<dependency>
 			<groupId>gr.cite.earthserver</groupId>
-			<artifactId>wcs-femme-client</artifactId>
+			<artifactId>wcs-adapter</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- Test dependencies -->
@@ -58,14 +58,15 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
+				<version>3.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -79,9 +80,9 @@
 					</execution>
 				</executions>
 			</plugin>
+		</plugins>
+	</build>
 			<!-- <plugin> <artifactId>maven-war-plugin</artifactId> <version>2.6</version> 
 				<configuration> <warSourceDirectory>WebContent</warSourceDirectory> <failOnMissingWebXml>false</failOnMissingWebXml> 
 				</configuration> </plugin> -->
-		</plugins>
-	</build>
 </project>
