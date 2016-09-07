@@ -20,9 +20,11 @@ import gr.cite.earthserver.wcs.core.WCSResponse;
 import gr.cite.earthserver.wcs.utils.ParseException;
 import gr.cite.earthserver.wcs.utils.WCSParseUtils;
 import gr.cite.femme.client.FemmeClient;
+import gr.cite.femme.client.FemmeDatastoreException;
 import gr.cite.femme.exceptions.DatastoreException;
 
 public class WCSHarvestableEndpoint implements Harvestable {
+	
 	private static final Logger logger = LoggerFactory.getLogger(WCSHarvestableEndpoint.class);
 
 	private UUID id;
@@ -54,7 +56,7 @@ public class WCSHarvestableEndpoint implements Harvestable {
 	}
 
 	@Override
-	public String harvest() throws DatastoreException {
+	public String harvest() throws FemmeDatastoreException {
 		String collectionId = null;
 		
 		try {

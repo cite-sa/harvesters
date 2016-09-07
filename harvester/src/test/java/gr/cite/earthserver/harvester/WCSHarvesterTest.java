@@ -17,8 +17,9 @@ public class WCSHarvesterTest {
 	
 	@Test
 	public void harvest() {
-		/*harvester.register(new WCSHarvestableEndpoint("https://rsg.pml.ac.uk/rasdaman/ows", new WCSFemmeClient()));*/
-		harvester.register(new WCSHarvestableEndpoint("http://access.planetserver.eu:8080/rasdaman/ows", new WCSAdapter()));
+		/*harvester.register(new WCSHarvestableEndpoint("https://rsg.pml.ac.uk/rasdaman/ows",*/
+		harvester.register(new WCSHarvestableEndpoint("http://access.planetserver.eu:8080/rasdaman/ows", 
+				new WCSAdapter("http://localhost:8081/femme-application/femme/")));
 		
 		harvester.harvest();
 	}

@@ -2,11 +2,19 @@ package gr.cite.earthserver.harvester.wcs;
 
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gr.cite.earthserver.wcs.adaper.api.WCSAdapterAPI;
+import gr.cite.earthserver.wcs.core.WCSRequest;
 import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
+import gr.cite.earthserver.wcs.core.WCSRequestException;
 import gr.cite.earthserver.wcs.core.WCSResponse;
+import gr.cite.earthserver.wcs.utils.ParseException;
+import gr.cite.femme.client.FemmeDatastoreException;
 
 public class RetrieveAndStoreCoverageCallable implements Callable<String>{
+	private static final Logger logger = LoggerFactory.getLogger(RetrieveAndStoreCoverageCallable.class);
 	
 	private WCSRequestBuilder wcsRequestBuilder;
 	
@@ -28,9 +36,10 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 	}
 		
 	@Override
-	public String call() throws Exception {
-		WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
-		
+	public String call() throws FemmeDatastoreException, WCSRequestException, ParseException {
+		WCSResponse describeCoverage = null;
+		describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
+	
 		if(collectionId != null) {
 			return adapter.addCoverage(describeCoverage, collectionId);
 		} else {
