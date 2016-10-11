@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.cite.earthserver.harvester.Harvestable;
+import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongoClient;
 import gr.cite.earthserver.wcs.adaper.api.WCSAdapterAPI;
 import gr.cite.earthserver.wcs.adapter.WCSAdapter;
 import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
@@ -58,6 +59,8 @@ public class WCSHarvestableEndpoint implements Harvestable {
 	@Override
 	public String harvest() throws FemmeDatastoreException {
 		String collectionId = null;
+		
+		HarvesterDatastoreMongoClient mongoClient = new HarvesterDatastoreMongoClient();
 		
 		try {
 			WCSRequestBuilder wcsRequestBuilder = new WCSRequestBuilder().endpoint(endpoint);
