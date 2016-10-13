@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans	
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd">
+   
+	<context:property-placeholder location="classpath:WEB-INF/harvester.properties" />
+   
+   <bean id="wcsAdapterr" class="gr.cite.earthserver.wcs.adapter.WCSAdapter" scope="prototype">
+		<constructor-arg value="${gr.cite.femme.earthserver.wcsAdapter.femme.url}"/>
+	</bean>
+	
+	<bean id="wcsHarvestable" class="gr.cite.earthserver.harvester.wcs.WCSHarvestable" scope="request">
+		<property name="wcsAdapter" ref="wcsAdapterr"></property>
+		<!-- <constructor-arg value="wcsAdapter"/> -->
+		<aop:scoped-proxy/>
+	</bean>
+   
+	<bean id="harvesterDatastore" name="harvesterDatastore" class="gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongo">
+		<constructor-arg value="${gr.cite.femme.earthserver.harvester.mongodb.host}"/>
+		<constructor-arg value="${gr.cite.femme.earthserver.harvester.mongodb.name}"/>
+	</bean>
+	
+   <bean id="harvester" class="gr.cite.earthserver.harvester.core.Harvester">
+   		<constructor-arg ref="harvesterDatastore" />
+   </bean>
+   
+   <bean id="harvesterResource" class="gr.cite.earthserver.harvester.application.resources.HarvesterResource">
+   		<constructor-arg ref="harvester" />
+   		<property name="harvestable" ref="wcsHarvestable"></property>
+   </bean>
+   
+   
+	
+	<context:annotation-config/>
+	<context:component-scan base-package="gr.cite.earthserver.harvester.application"/>
+</beans>

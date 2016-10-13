@@ -18,11 +18,10 @@ public class HarvesterResourceTest {
 		formData.add("endpoint", "http://access.planetserver.eu:8080/rasdaman/ows");
 		formData.add("period", "60");
 		formData.add("timeUnit", "MINUTES");
-		formData.add("initialDelay", "0");
 		
 		
 		Client client = ClientBuilder.newClient();
-		WebTarget webTarget = client.target("http://192.168.32.84:8082/harvester-application/harvester");
+		WebTarget webTarget = client.target("http://192.168.32.85:8082/harvester-application/harvester");
 		
 		webTarget
 			.path("register")

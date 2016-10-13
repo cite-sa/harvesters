@@ -1,40 +1,48 @@
 package gr.cite.earthserver.harvester.datastore.model;
 
-import java.util.Date;
+import java.time.Instant;
+
+import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_EMPTY)
 public class Harvest {
 
-	private enum StatusType
-	{
-		Pending,
-		Running,
-		Finished,
-		Error
-	}
-	
+	@JsonProperty
 	private String id;
 	
+	@JsonProperty
 	private String endpoint;
 	
-	private String description;
+	@JsonProperty
+	private String endpointAlias;
 	
-	private Date startTime;
+	@JsonProperty
+	private Instant startTime;
 
-	private Date endTime;
+	@JsonProperty
+	private Instant endTime;
 	
-	private StatusType status;
+	@JsonProperty
+	private Schedule schedule;
+	
+	@JsonProperty
+	private Status status;
 	
 	public Harvest() {
+		this.id = new ObjectId().toString();
+		this.status = Status.PENDING;
 	}
 	
-	public Harvest(String id, String endpoint, String description) {
-		this.id = id;
+	public Harvest(String endpoint, String endpointAlias, Schedule schedule) {
+		this.id = new ObjectId().toString();
 		this.endpoint = endpoint;
-		this.description = description;
+		this.endpointAlias = endpointAlias;
+		this.schedule = schedule;
+		this.status = Status.PENDING;
 	}
 	
 	public String getId() {
@@ -53,48 +61,43 @@ public class Harvest {
 		this.endpoint = endpoint;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getEndpointAlias() {
+		return endpointAlias;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setEndpointAlias(String endpointAlias) {
+		this.endpointAlias = endpointAlias;
 	}
 
-	public Date getStartTime() {
+	public Instant getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Date startTime) {
+	public void setStartTime(Instant startTime) {
 		this.startTime = startTime;
 	}
 
-	public Date getEndTime() {
+	public Instant getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Date endTime) {
+	public void setEndTime(Instant endTime) {
 		this.endTime = endTime;
 	}
 
-	public StatusType getStatus() {
+	public Schedule getSchedule() {
+		return schedule;
+	}
+
+	public void setSchedule(Schedule schedule) {
+		this.schedule = schedule;
+	}
+
+	public Status getStatus() {
 		return status;
 	}
 
-	public void setStatus(StatusType status) {
+	public void setStatus(Status status) {
 		this.status = status;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder metadataBuilder = new StringBuilder();
-		metadataBuilder.append("\t" + this.id);
-		metadataBuilder.append("\n");
-		metadataBuilder.append("\t" + this.endpoint);
-		metadataBuilder.append("\n");
-		metadataBuilder.append("\t" + this.description);
-		metadataBuilder.append("\n");
-		
-		return metadataBuilder.toString();
 	}
 }

@@ -1,4 +1,4 @@
-package gr.cite.earthserver.harvester.application;
+/*package gr.cite.earthserver.harvester.application;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
@@ -15,3 +15,4 @@ public class HarvesterApplicationBinder extends AbstractBinder {
 	}
 
 }
+*/
