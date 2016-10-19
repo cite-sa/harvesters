@@ -47,7 +47,7 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 
 	@Override
 	public Harvest getHarvestById(String id) {
-		return this.harvestCollection.find(Filters.eq("_id", id)).limit(1).first();
+		return this.harvestCollection.find(Filters.eq("_id", new ObjectId(id))).limit(1).first();
 	}
 	
 	@Override
@@ -72,8 +72,8 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	@Override
 	public Harvest updateHarvestStatus(String id, Status status) {
 		return this.harvestCollection.findOneAndUpdate(
-				Filters.eq("_id", new ObjectId()),
-				new Document().append("$set", new Document().append("status", status.getStatus())));
+				Filters.eq("_id", new ObjectId(id)),
+				new Document().append("$set", new Document().append("status", status.getStatusCode())));
 	}
 
 }

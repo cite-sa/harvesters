@@ -8,8 +8,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
-import gt.cite.earthserver.harvester.datastore.mongodb.codecs.HarvestCodecProvider;
-import gt.cite.earthserver.harvester.datastore.mongodb.codecs.ScheduleCodecProvider;
+import gr.cite.earthserver.harvester.datastore.mongodb.codecs.HarvestCodecProvider;
+import gr.cite.earthserver.harvester.datastore.mongodb.codecs.ScheduleCodecProvider;
 
 public class HarvesterDatastoreMongoClient {
 	private static final String DATABASE_HOST = "es-devel1.local.cite.gr:27017";

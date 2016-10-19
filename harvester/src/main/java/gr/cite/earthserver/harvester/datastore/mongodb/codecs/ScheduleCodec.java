@@ -1,4 +1,4 @@
-package gt.cite.earthserver.harvester.datastore.mongodb.codecs;
+package gr.cite.earthserver.harvester.datastore.mongodb.codecs;
 
 import java.util.concurrent.TimeUnit;
 

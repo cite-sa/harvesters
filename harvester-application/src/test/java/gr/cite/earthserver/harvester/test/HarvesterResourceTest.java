@@ -21,7 +21,8 @@ public class HarvesterResourceTest {
 		
 		
 		Client client = ClientBuilder.newClient();
-		WebTarget webTarget = client.target("http://192.168.32.85:8082/harvester-application/harvester");
+		//WebTarget webTarget = client.target("http://192.168.32.85:8082/harvester-application/harvester");
+		WebTarget webTarget = client.target("http://localhost:8080/harvester-application/harvester");
 		
 		webTarget
 			.path("register")
