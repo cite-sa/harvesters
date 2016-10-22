@@ -50,7 +50,7 @@ public class Harvester {
 		harvesterDatastore.registerHarvest(harvestable.getHarvest());
 		
 		ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-		executorService.scheduleAtFixedRate(new HarvestableTask(harvestable), 0, harvestable.getHarvest().getSchedule().getPeriod(), harvestable.getHarvest().getSchedule().getTimeUnit());
+		//executorService.scheduleAtFixedRate(new HarvestableTask(harvestable), 0, harvestable.getHarvest().getSchedule().getPeriod(), harvestable.getHarvest().getSchedule().getTimeUnit());
 
 		harvestables.put(harvestable, executorService);
 		
@@ -127,7 +127,7 @@ public class Harvester {
 	
 	private Map<Harvestable, ScheduledExecutorService> buildHarvestableMap() {
 		
-		return null;
+		return new HashMap<>();
 	}
 
 }

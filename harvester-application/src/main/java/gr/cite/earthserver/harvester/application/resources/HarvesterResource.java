@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -17,6 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.util.JSONPObject;
 
 import gr.cite.earthserver.harvester.core.Harvestable;
 import gr.cite.earthserver.harvester.core.Harvester;
@@ -56,7 +59,6 @@ public class HarvesterResource {
 
 	@POST
 	@Path("register")
-	/*@Consumes(MediaType.APPLICATION_FORM_URLENCODED)*/
 	public Response register(
 			@FormParam("endpoint") String endpoint,
 			@FormParam("endpointAlias") String endpointAlias,
@@ -72,14 +74,29 @@ public class HarvesterResource {
 		return Response.ok().build();
 	}
 	
+	@GET
+	@Path("registerJSONP")
+	public JSONPObject registerJSONP(
+			@QueryParam("endpoint") String endpoint,
+			@QueryParam("endpointAlias") String endpointAlias,
+			@QueryParam("period") Long period,
+			@QueryParam("timeUnit") String timeUnit,
+			@QueryParam("callback") @DefaultValue("callback") String callback) {
+		return new JSONPObject(callback, register(endpoint, endpointAlias, period, timeUnit));
+		
+	}
+	
 	@POST
 	@Path("unregister")
-	public Response unregister(
-			@FormParam("endpoint") String endpoint) {
-		
+	public Response unregister(@FormParam("endpoint") String endpoint) {
 		harvester.unregister(endpoint);
-		
 		return Response.ok().build();
+	}
+	
+	@GET
+	@Path("unregisterJSONP")
+	public JSONPObject unregisterJSONP(@QueryParam("endpoint") String endpoint, @QueryParam("callback") @DefaultValue("callback") String callback) {
+		return new JSONPObject(callback, unregister(endpoint));
 	}
 	
 	@POST
@@ -94,6 +111,15 @@ public class HarvesterResource {
 		}
 		
 		return Response.ok().build();
+	}
+	
+	@GET
+	@Path("unregisterJSONP")
+	public JSONPObject harvestJSONP(
+			@QueryParam("id") String id,
+			@QueryParam("endpoint") String endpoint,
+			@QueryParam("callback") @DefaultValue("callback") String callback) {
+		return new JSONPObject(callback, harvest(id, endpoint));
 	}
 	
 	@GET
