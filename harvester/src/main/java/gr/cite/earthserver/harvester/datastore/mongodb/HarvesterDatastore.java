@@ -9,7 +9,7 @@ public interface HarvesterDatastore {
 	
 	public String registerHarvest(Harvest harvest);
 	
-	public String unregisterHarvest(String endpoint);
+	public String unregisterHarvest(String id);
 	
 	public String updateHarvest(Harvest harvest);
 	
@@ -18,6 +18,8 @@ public interface HarvesterDatastore {
 	public Harvest getHarvestByEndpoint(String endpoint);
 	
 	public List<Harvest> getHarvests(Integer limit, Integer offset);
+	
+	public List<Harvest> updateHarvestStatus(Status status);
 	
 	public Harvest updateHarvestStatus(String id, Status status);
 	

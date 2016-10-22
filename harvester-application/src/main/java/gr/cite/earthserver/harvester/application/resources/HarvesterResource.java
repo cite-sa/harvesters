@@ -1,17 +1,18 @@
 package gr.cite.earthserver.harvester.application.resources;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -25,9 +26,6 @@ import gr.cite.earthserver.harvester.core.Harvestable;
 import gr.cite.earthserver.harvester.core.Harvester;
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
 import gr.cite.earthserver.harvester.datastore.model.Schedule;
-import gr.cite.earthserver.harvester.wcs.WCSHarvestable;
-import gr.cite.earthserver.wcs.adapter.WCSAdapter;
-import gr.cite.earthserver.wcs.adapter.api.WCSAdapterAPI;
 
 @Component
 @Path("harvester")
@@ -63,11 +61,11 @@ public class HarvesterResource {
 			@FormParam("endpoint") String endpoint,
 			@FormParam("endpointAlias") String endpointAlias,
 			@FormParam("period") Long period,
-			@FormParam("timeUnit") String timeUnit) {
+			@FormParam("periodType") String periodType) {
 		
 		//harvester.register(new WCSHarvestable(endpoint, schedule));
 		endpointAlias = endpointAlias == null ? UUID.randomUUID().toString() : endpointAlias; 
-		harvestable.setHarvest(new Harvest(endpoint, endpointAlias, new Schedule(period, TimeUnit.valueOf(timeUnit))));
+		harvestable.setHarvest(new Harvest(endpoint, endpointAlias, new Schedule(period, TimeUnit.valueOf(periodType))));
 		//harvester.register(new WCSHarvestable(endpoint, schedule, this.wcsAdapter));
 		harvester.register(harvestable);
 		
@@ -80,9 +78,9 @@ public class HarvesterResource {
 			@QueryParam("endpoint") String endpoint,
 			@QueryParam("endpointAlias") String endpointAlias,
 			@QueryParam("period") Long period,
-			@QueryParam("timeUnit") String timeUnit,
+			@QueryParam("periodType") String periodType,
 			@QueryParam("callback") @DefaultValue("callback") String callback) {
-		return new JSONPObject(callback, register(endpoint, endpointAlias, period, timeUnit));
+		return new JSONPObject(callback, register(endpoint, endpointAlias, period, periodType));
 		
 	}
 	
@@ -95,17 +93,15 @@ public class HarvesterResource {
 	
 	@GET
 	@Path("unregisterJSONP")
-	public JSONPObject unregisterJSONP(@QueryParam("endpoint") String endpoint, @QueryParam("callback") @DefaultValue("callback") String callback) {
-		return new JSONPObject(callback, unregister(endpoint));
+	public JSONPObject unregisterJSONP(@QueryParam("id") String id, @QueryParam("callback") @DefaultValue("callback") String callback) {
+		return new JSONPObject(callback, unregister(id));
 	}
 	
 	@POST
 	@Path("harvest")
-	public Response harvest(@QueryParam("id") String id, @QueryParam("endpoint") String endpoint) {
+	public Response harvest(@QueryParam("id") String id) {
 		if (id != null) {			
 			harvester.harvest(id);
-		} else if (endpoint != null) {
-			harvester.harvestEndpoint(endpoint);
 		} else {
 			harvester.harvest();
 		}
@@ -114,13 +110,34 @@ public class HarvesterResource {
 	}
 	
 	@GET
-	@Path("unregisterJSONP")
-	public JSONPObject harvestJSONP(
-			@QueryParam("id") String id,
-			@QueryParam("endpoint") String endpoint,
-			@QueryParam("callback") @DefaultValue("callback") String callback) {
-		return new JSONPObject(callback, harvest(id, endpoint));
+    @Path("harvestJSONP")
+    @Produces("application/javascript")
+    public JSONPObject harvestJSONP(
+    		@QueryParam("id") String id,
+            @DefaultValue("callback") @QueryParam("callback") String callback) {
+        return new JSONPObject(callback, this.harvest(id).getEntity());
+    }
+	
+	@POST
+	@Path("stopHarvest")
+	public Response stopHarvest(@QueryParam("id") String id) {
+		if (id != null) {			
+			harvester.stopHarvest(id);
+		} else {
+			harvester.stopHarvest();
+		}
+		
+		return Response.ok().build();
 	}
+	
+	@GET
+    @Path("stopHarvestJSONP")
+    @Produces("application/javascript")
+    public JSONPObject stopHarvestJSONP(
+    		@QueryParam("id") String id,
+            @DefaultValue("callback") @QueryParam("callback") String callback) {
+        return new JSONPObject(callback, this.stopHarvest(id).getEntity());
+    }
 	
 	@GET
 	@Path("/harvests")
@@ -128,5 +145,49 @@ public class HarvesterResource {
 		List<Harvest> harvests = harvester.getHarvests(limit, offset);
 		
 		return Response.ok(harvests).build();
+	}
+	
+    @GET
+    @Path("getHarvestsUI")
+    @Produces("application/javascript")
+    public JSONPObject getHarvestsUI(
+            @QueryParam("request[Size]") Integer limit,
+            @QueryParam("request[Offset]") Integer offset,
+            @DefaultValue("callback") @QueryParam("callback") String callback) {
+    	List<Harvest> harvests = harvester.getHarvests(limit, offset);
+    	Map<String, Object> result = this.serialize(harvests);
+        return new JSONPObject(callback, result);
+    }
+
+	private Map<String, Object> serialize(List<Harvest> harvests)
+	{
+		Map<String, Object> result = new HashMap<>();
+		
+		List<Map<String, Object>> rows = new ArrayList<>();
+		
+		for(Harvest harvest : harvests) {
+			Map<String, Object> row = new HashMap<>();
+			Map<String, Object> rowData = new HashMap<>();
+			
+			rowData.put("ID", harvest.getId().toString());
+			rowData.put("Endpoint", harvest.getEndpoint().toString());
+			rowData.put("EndpointAlias", harvest.getEndpointAlias().toString());
+			rowData.put("SchedulePeriod", harvest.getSchedule().getPeriod().toString());
+			rowData.put("StartTime", harvest.getStartTime() == null ? "" : harvest.getStartTime().toString());
+			rowData.put("EndTime", harvest.getEndTime() == null ? "" : harvest.getEndTime().toString());
+			rowData.put("Status", harvest.getStatus().toString());
+			
+			row.put("Data", rowData);
+			rows.add(row);
+		}
+		
+		result.put("Rows", rows);
+		
+		Map<String, Object> context = new HashMap<>();
+		context.put("Total", rows.size());
+		context.put("Filtered", rows.size());
+		result.put("Context", context);
+		
+		return result;
 	}
 }

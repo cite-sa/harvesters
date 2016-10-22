@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
 import gr.cite.earthserver.harvester.datastore.model.Schedule;
+import gr.cite.earthserver.harvester.datastore.model.Status;
 import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastore;
 import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongo;
 import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongoClient;
@@ -114,11 +115,15 @@ public class Harvester {
 	}
 	
 	public void harvest(String id) {
-
+		this.harvesterDatastore.updateHarvestStatus(id, Status.RUNNING);	
 	}
 	
-	public void harvestEndpoint(String endpoint) {
-
+	public void stopHarvest() {
+		this.harvesterDatastore.updateHarvestStatus(Status.STOPPED);	
+	}
+	
+	public void stopHarvest(String id) {
+		this.harvesterDatastore.updateHarvestStatus(id, Status.STOPPED);	
 	}
 	
 	public List<Harvest> getHarvests(Integer limit, Integer offset) {
@@ -126,7 +131,6 @@ public class Harvester {
 	}
 	
 	private Map<Harvestable, ScheduledExecutorService> buildHarvestableMap() {
-		
 		return new HashMap<>();
 	}
 

@@ -1,4 +1,4 @@
-package gt.cite.earthserver.harvester.datastore.mongodb.codecs;
+package gr.cite.earthserver.harvester.datastore.mongodb.codecs;
 
 import java.time.Instant;
 
@@ -61,7 +61,7 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 			encoderContext.encodeWithChildContext(codecRegistry.get(Schedule.class), writer, value.getSchedule());
 		}
 		if (value.getStatus() != null) {
-			writer.writeString(HarvestCodec.HARVEST_STATUS_KEY, value.getStatus().name());
+			writer.writeString(HarvestCodec.HARVEST_STATUS_KEY, value.getStatus().getStatusCode());
 		}
 		
 		writer.writeEndDocument();
@@ -99,7 +99,7 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
             		schedule = codecRegistry.get(Schedule.class).decode(reader, decoderContext);            		
             	}
             } else if (fieldName.equals(HarvestCodec.HARVEST_STATUS_KEY)) {
-            	status = Status.valueOf(reader.readString());
+            	status = Status.getEnum(reader.readString());
             }
 		}
 		

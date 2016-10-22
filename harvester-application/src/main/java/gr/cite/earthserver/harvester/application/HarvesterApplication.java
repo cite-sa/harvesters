@@ -13,7 +13,6 @@ public class HarvesterApplication extends ResourceConfig {
 	public HarvesterApplication() {
 		register(JacksonFeature.class);
 		register(HarvesterResource.class);
-		/*register(new HarvesterApplicationBinder());*/
 	}
 	
 }

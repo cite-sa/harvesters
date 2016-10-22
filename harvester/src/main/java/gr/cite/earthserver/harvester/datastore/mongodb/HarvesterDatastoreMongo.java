@@ -1,6 +1,8 @@
 package gr.cite.earthserver.harvester.datastore.mongodb;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
@@ -34,8 +36,8 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	}
 	
 	@Override
-	public String unregisterHarvest(String endpoint) {
-		return this.harvestCollection.findOneAndDelete(Filters.eq("endpoint", endpoint),
+	public String unregisterHarvest(String id) {
+		return this.harvestCollection.findOneAndDelete(Filters.eq("_id", new ObjectId(id)),
 				new FindOneAndDeleteOptions().projection(Projections.include("_id"))).getId();
 	}
 
@@ -47,7 +49,7 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 
 	@Override
 	public Harvest getHarvestById(String id) {
-		return this.harvestCollection.find(Filters.eq("_id", id)).limit(1).first();
+		return this.harvestCollection.find(Filters.eq("_id", new ObjectId(id))).limit(1).first();
 	}
 	
 	@Override
@@ -72,8 +74,13 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	@Override
 	public Harvest updateHarvestStatus(String id, Status status) {
 		return this.harvestCollection.findOneAndUpdate(
-				Filters.eq("_id", new ObjectId()),
-				new Document().append("$set", new Document().append("status", status.getStatus())));
+				Filters.eq("_id", new ObjectId(id)),
+				new Document().append("$set", new Document().append("status", status.getStatusCode()).append("startTime", new Date())));
+	}
+	
+	@Override
+	public List<Harvest> updateHarvestStatus(Status status) {
+		return new ArrayList<>();
 	}
 
 }
