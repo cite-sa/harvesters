@@ -1,4 +1,6 @@
-package gr.cite.earthserver.harvester;
+package gr.cite.earthserver.harvester.core;
+
+import gr.cite.earthserver.harvester.datastore.model.Harvest;
 
 /**
  * 
@@ -9,8 +11,12 @@ package gr.cite.earthserver.harvester;
  *
  */
 public interface Harvestable {
+	
+	//private Harvest harvest;
 
-	public String getEndpoint();
+	public Harvest getHarvest();
+	
+	public void setHarvest(Harvest harvest);
 
 	/**
 	 * The {@link Harvester} in which this {@code Harvestable} is registered

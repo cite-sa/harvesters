@@ -8,12 +8,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.inject.Inject;
+
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gr.cite.earthserver.harvester.Harvestable;
-import gr.cite.earthserver.wcs.adaper.api.WCSAdapterAPI;
+import gr.cite.earthserver.harvester.core.Harvestable;
+import gr.cite.earthserver.harvester.datastore.model.Harvest;
+import gr.cite.earthserver.harvester.datastore.model.Schedule;
+import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongoClient;
 import gr.cite.earthserver.wcs.adapter.WCSAdapter;
+import gr.cite.earthserver.wcs.adapter.api.WCSAdapterAPI;
 import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
 import gr.cite.earthserver.wcs.core.WCSRequestException;
 import gr.cite.earthserver.wcs.core.WCSResponse;
@@ -23,56 +29,70 @@ import gr.cite.femme.client.FemmeClient;
 import gr.cite.femme.client.FemmeDatastoreException;
 import gr.cite.femme.exceptions.DatastoreException;
 
-public class WCSHarvestableEndpoint implements Harvestable {
+public class WCSHarvestable implements Harvestable {
 	
-	private static final Logger logger = LoggerFactory.getLogger(WCSHarvestableEndpoint.class);
+	private static final Logger logger = LoggerFactory.getLogger(WCSHarvestable.class);
+	
+	private Harvest harvest;
+	
+	private WCSAdapter wcsAdapter;
 
-	private UUID id;
-
-	private String endpoint;
-
-	private WCSAdapterAPI adapter;
-
-	public WCSHarvestableEndpoint() {
+	/*@Inject
+	public WCSHarvestable(WCSAdapterAPI wcsAdapter) {
+		this.wcsAdapter = wcsAdapter;
+	}*/
+	
+	@Inject
+	public void setWcsAdapter(WCSAdapter wcsAdapter) {
+		this.wcsAdapter = wcsAdapter;
+	}
+	
+	/*public WCSAdapter getWcsAdapter() {
+		return this.wcsAdapter;
+	}*/
+	
+	/*public WCSHarvestable(String endpoint, Schedule schedule, WCSAdapterAPI wcsAdapter) {
+		Harvest harvest = new Harvest();
+		harvest.setEndpoint(endpoint);
+		harvest.setSchedule(schedule);
 		
+		this.setHarvest(harvest);
+		
+		this.wcsAdapter = wcsAdapter;
+	}*/
+	
+	/*public WCSHarvestable(Harvest harvest) {
+		this.setHarvest(harvest);
+	}*/
+	
+	public Harvest getHarvest() {
+		return this.harvest;
 	}
-
-	public WCSHarvestableEndpoint(String endpoint, WCSAdapter adapter) {
-		this.endpoint = endpoint;
-		this.adapter = adapter;
+	
+	public void setHarvest(Harvest harvest) {
+		this.harvest = harvest;
 	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	@Override
-	public String getEndpoint() {
-		return endpoint;
-	}
+	
+	
 
 	@Override
 	public String harvest() throws FemmeDatastoreException {
 		String collectionId = null;
 		
 		try {
-			WCSRequestBuilder wcsRequestBuilder = new WCSRequestBuilder().endpoint(endpoint);
+			WCSRequestBuilder wcsRequestBuilder = new WCSRequestBuilder().endpoint(this.getHarvest().getEndpoint());
 
 			WCSResponse getCapabilities = wcsRequestBuilder.getCapabilities().build().get();
 			
 			List<String> coverageIds = WCSParseUtils.getCoverageIds(getCapabilities.getResponse());
 			
-			collectionId = adapter.insertServer(endpoint, getCapabilities);
+			collectionId = this.wcsAdapter.insertServer(this.getHarvest().getEndpoint(), getCapabilities);
 
 			List<Future<String>> futures = new ArrayList<Future<String>>();
 			ExecutorService executor = Executors.newFixedThreadPool(40);
 			
 			for (String coverageId : coverageIds) {
-				futures.add(executor.submit(new RetrieveAndStoreCoverageCallable(wcsRequestBuilder, adapter, collectionId, coverageId)));
+				futures.add(executor.submit(new RetrieveAndStoreCoverageCallable(wcsRequestBuilder, this.wcsAdapter, collectionId, coverageId)));
 				/*WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
 				femmeClient.addToCollection(WCSFemmeMapper.fromCoverage(describeCoverage), collectionId);*/
 			}

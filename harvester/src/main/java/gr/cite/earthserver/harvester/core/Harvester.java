@@ -1,4 +1,4 @@
-package gr.cite.earthserver.harvester;
+package gr.cite.earthserver.harvester.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,22 +10,34 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gr.cite.earthserver.harvester.datastore.model.Harvest;
+import gr.cite.earthserver.harvester.datastore.model.Schedule;
+import gr.cite.earthserver.harvester.datastore.model.Status;
+import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastore;
+import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongo;
+import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongoClient;
+import gr.cite.earthserver.harvester.wcs.WCSHarvestable;
+import gr.cite.femme.utils.Pair;
+
 public class Harvester {
+	
 	private static final Logger logger = LoggerFactory.getLogger(Harvester.class);
+	
+	private HarvesterDatastore harvesterDatastore;
 
 	private Map<Harvestable, ScheduledExecutorService> harvestables;
 
-	
-	public Harvester() {
-		this(new HashMap<Harvestable, ScheduledExecutorService>());
-	}
-	
-	public Harvester(Map<Harvestable, ScheduledExecutorService> harvestables) {
-		this.harvestables = harvestables;
+	@Inject
+	public Harvester(HarvesterDatastore harvesterDatastore) {
+		this.harvesterDatastore = harvesterDatastore;
+		this.harvestables = this.buildHarvestableMap();
 	}
 
 	/**
@@ -36,29 +48,19 @@ public class Harvester {
 	 *            {@linkplain Harvestable}
 	 */
 	public void register(Harvestable harvestable) {
-		harvestables.put(harvestable, null);
-	}
-
-	/**
-	 * registers a {@link Harvestable} for independent periodic execution,
-	 * according to it's given {@link Schedule}
-	 * 
-	 * @param harvestable
-	 *            it is recommended to implement an {@code equals} and
-	 *            {@code hash} method in the implementation of
-	 *            {@linkplain Harvestable}
-	 * @param schedule
-	 */
-	public void register(Harvestable harvestable, Schedule schedule) {
-
+		harvesterDatastore.registerHarvest(harvestable.getHarvest());
+		
 		ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-
-		executorService.scheduleAtFixedRate(new HarvestableTask(harvestable), schedule.getInitialDelay(),
-				schedule.getPeriod(), schedule.getTimeUnit());
+		//executorService.scheduleAtFixedRate(new HarvestableTask(harvestable), 0, harvestable.getHarvest().getSchedule().getPeriod(), harvestable.getHarvest().getSchedule().getTimeUnit());
 
 		harvestables.put(harvestable, executorService);
 		
-		logger.info("Endpoint " + harvestable.getEndpoint() + " has been registered successfully");
+		logger.info("Endpoint " + harvestable.getHarvest().getEndpoint() + " has been registered successfully");
+	}
+	
+	public void unregister(String endpoint) {
+		this.harvesterDatastore.unregisterHarvest(endpoint);
+		/*this.unregister(harvesterDatastore.getHarvest(endpoint));*/
 	}
 	
 	public void unregister(Harvestable harvestable) {
@@ -73,16 +75,13 @@ public class Harvester {
 
 			harvestables.remove(harvestable);
 			
-			logger.info("Endpoint " + harvestable.getEndpoint() + " has been unregistered successfully");
+			logger.info("Endpoint " + harvestable.getHarvest().getEndpoint() + " has been unregistered successfully");
 
 		} else {
 			logger.warn("harvestable " + harvestable.toString() + " was not found in harvester.");
 		}
 	}
 
-	/**
-	 * harvest now, all registered {@link Harvestable harvestables}
-	 */
 	public void harvest() {
 		logger.info("Harvesting all registered Harvestable sources...");
 
@@ -113,6 +112,26 @@ public class Harvester {
 
 		logger.info("Harvested all registered Harvestable sources");
 
+	}
+	
+	public void harvest(String id) {
+		this.harvesterDatastore.updateHarvestStatus(id, Status.RUNNING);	
+	}
+	
+	public void stopHarvest() {
+		this.harvesterDatastore.updateHarvestStatus(Status.STOPPED);	
+	}
+	
+	public void stopHarvest(String id) {
+		this.harvesterDatastore.updateHarvestStatus(id, Status.STOPPED);	
+	}
+	
+	public List<Harvest> getHarvests(Integer limit, Integer offset) {
+		return this.harvesterDatastore.getHarvests(limit, offset);
+	}
+	
+	private Map<Harvestable, ScheduledExecutorService> buildHarvestableMap() {
+		return new HashMap<>();
 	}
 
 }
