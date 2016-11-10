@@ -33,6 +33,7 @@ public class WCSHarvesterTest {
 //		WCSAdapter wcsAdapter = new WCSAdapter("http://localhost:8081/femme-application");
 		Harvest harvest = new Harvest();
 //		harvest.setEndpoint("http://access.planetserver.eu:8080/rasdaman/ows");
+//		harvest.setEndpoint("http://incubator.ecmwf.int/2e/rasdaman/ows");
 		harvest.setEndpoint("https://rsg.pml.ac.uk/rasdaman/ows");
 		harvest.setSchedule(new Schedule(new Long(60), TimeUnit.DAYS));
 		
