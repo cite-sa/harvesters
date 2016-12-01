@@ -12,9 +12,12 @@ import gr.cite.earthserver.harvester.datastore.mongodb.codecs.HarvestCodecProvid
 import gr.cite.earthserver.harvester.datastore.mongodb.codecs.ScheduleCodecProvider;
 
 public class HarvesterDatastoreMongoClient {
-	private static final String DATABASE_HOST = "es-devel1.local.cite.gr:27017";
-	// private static final String DATABASE_HOST = "localhost:27017";
-	private static final String DATABASE_NAME = "harvester-db";
+	
+//	private static final String DATABASE_HOST = "es-devel1.local.cite.gr:27017";
+	private static final String DATABASE_HOST = "localhost:27017";
+	
+//	private static final String DATABASE_NAME = "harvester-db";
+	private static final String DATABASE_NAME = "harvester-db-devel";
 	private static final String HARVEST_COLLECTION_NAME = "harvests";
 
 	private MongoClient client;
@@ -33,8 +36,7 @@ public class HarvesterDatastoreMongoClient {
 		CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
 				CodecRegistries.fromProviders(new HarvestCodecProvider(), new ScheduleCodecProvider()));
 
-		this.harvests = this.database.getCollection(HARVEST_COLLECTION_NAME, Harvest.class)
-				.withCodecRegistry(codecRegistry);
+		this.harvests = this.database.getCollection(HARVEST_COLLECTION_NAME, Harvest.class).withCodecRegistry(codecRegistry);
 	}
 
 	public MongoCollection<Harvest> getHarvestCollection() {

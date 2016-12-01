@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.cite.earthserver.wcs.adapter.api.WCSAdapterAPI;
-import gr.cite.earthserver.wcs.core.WCSRequest;
 import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
 import gr.cite.earthserver.wcs.core.WCSRequestException;
 import gr.cite.earthserver.wcs.core.WCSResponse;
@@ -14,6 +13,7 @@ import gr.cite.earthserver.wcs.utils.ParseException;
 import gr.cite.femme.client.FemmeDatastoreException;
 
 public class RetrieveAndStoreCoverageCallable implements Callable<String>{
+	
 	private static final Logger logger = LoggerFactory.getLogger(RetrieveAndStoreCoverageCallable.class);
 	
 	private WCSRequestBuilder wcsRequestBuilder;
@@ -41,10 +41,11 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 		describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
 	
 		if(collectionId != null) {
+//			logger.info(describeCoverage+" coverage inserted");
 			return adapter.addCoverage(describeCoverage, collectionId);
 		} else {
+//			logger.info(describeCoverage+" coverage inserted");
 			return adapter.insertCoverage(describeCoverage);
 		}
 	}
-	
 }

@@ -10,7 +10,7 @@
 		<mongodb.version>3.3.0</mongodb.version>
 	</properties>
 
-	<repositories>
+ 	<repositories>
 		<repository>
 			<id>archiva.internal</id>
 			<name>Internal Snapshot Repository</name>

@@ -1,5 +1,6 @@
 package gr.cite.earthserver.harvester.datastore.mongodb.codecs;
 
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 import org.bson.BsonReader;
@@ -65,7 +66,7 @@ public class ScheduleCodec implements CollectibleCodec<Schedule> {
 	public Schedule decode(BsonReader reader, DecoderContext decoderContext) {
 		String id = null;
 		Long period = null;
-		TimeUnit timeUnit = null;
+		ChronoUnit timeUnit = null;
 		
 		reader.readStartDocument();
 		
@@ -77,7 +78,7 @@ public class ScheduleCodec implements CollectibleCodec<Schedule> {
             } else if (fieldName.equals(ScheduleCodec.SCHEDULE_PERIOD_KEY)) {
             	period = new Long(reader.readInt64());
             } else if (fieldName.equals(ScheduleCodec.SCHEDULE_TIME_UNIT_KEY)) {
-            	timeUnit = TimeUnit.valueOf(reader.readString());
+            	timeUnit = ChronoUnit.valueOf(reader.readString());
             }
 		}
 		

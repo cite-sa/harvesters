@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.naming.OperationNotSupportedException;
+
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -31,7 +33,6 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	@Override
 	public String registerHarvest(Harvest harvest) {
 		this.harvestCollection.insertOne(harvest);
-		
 		return harvest.getId();
 	}
 	
@@ -42,9 +43,8 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	}
 
 	@Override
-	public String updateHarvest(Harvest harvest) {
-		// TODO Auto-generated method stub
-		return null;
+	public String updateHarvest(Harvest harvest) throws OperationNotSupportedException {
+		throw new OperationNotSupportedException("Update harvest not supported yet");
 	}
 
 	@Override
@@ -55,6 +55,19 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	@Override
 	public Harvest getHarvestByEndpoint(String endpoint) {
 		return this.harvestCollection.find(Filters.eq("endpoint", endpoint)).limit(1).first();
+	}
+	
+	@Override
+	public Harvest getHarvestByEndpointAlias(String endpointAlias){
+		return this.harvestCollection.find(Filters.eq("endpointAlias", endpointAlias)).limit(1).first();
+	}
+	
+	@Override
+	public List<Harvest> getHarvests() {
+		List<Harvest> harvests = new ArrayList<>();
+		FindIterable<Harvest> harvestIterable = this.harvestCollection.find();
+		harvestIterable.into(harvests);
+		return harvests;
 	}
 
 	@Override
@@ -71,16 +84,49 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 		return harvests;
 	}
 	
-	@Override
-	public Harvest updateHarvestStatus(String id, Status status) {
-		return this.harvestCollection.findOneAndUpdate(
-				Filters.eq("_id", new ObjectId(id)),
-				new Document().append("$set", new Document().append("status", status.getStatusCode()).append("startTime", new Date())));
+	public List<Harvest> getHarvestsToBeHarvested(){
+		
+		List <Harvest> harvests = new ArrayList<>();
+//		FindIterable<Harvest> harvestIterable = this.harvestCollection.find(Filters.or(Filters.eq("status", "finished"),Filters.eq("status", "starting"),
+//				                                                            Filters.eq("status", "pending"),Filters.eq("status", "stopped")));
+		FindIterable<Harvest> harvestIterable = this.harvestCollection.find(Filters.not(Filters.eq("status", "error")));
+		harvestIterable.into(harvests);
+		
+		return harvests;
 	}
 	
 	@Override
-	public List<Harvest> updateHarvestStatus(Status status) {
-		return new ArrayList<>();
+	synchronized public Harvest updateHarvestStatus(String id, Status status) {
+		
+		Harvest harvest = null;
+		
+		if("running".equals(status.getStatusCode())){
+			return this.harvestCollection.findOneAndUpdate(
+					Filters.eq("_id", new ObjectId(id)),
+					new Document().append("$set", new Document().append("status", status.getStatusCode()).append("startTime", new Date())));
+		}
+		else if("stopped".equals(status.getStatusCode())){
+			return this.harvestCollection.findOneAndUpdate(
+					Filters.eq("_id", new ObjectId(id)),
+					new Document().append("$set", new Document().append("status", status.getStatusCode())));
+		}
+		else if("pending".equals(status.getStatusCode())){
+			return this.harvestCollection.findOneAndUpdate(
+					Filters.eq("_id", new ObjectId(id)),
+					new Document().append("$set", new Document().append("status", status.getStatusCode())));
+		}
+		else if("error".equals(status.getStatusCode())){
+			return this.harvestCollection.findOneAndUpdate(
+					Filters.eq("_id", new ObjectId(id)),
+					new Document().append("$set", new Document().append("status", status.getStatusCode())));
+		}
+		else if("finished".equals(status.getStatusCode())){
+			return this.harvestCollection.findOneAndUpdate(
+					Filters.eq("_id", new ObjectId(id)),
+					new Document().append("$set", new Document().append("status", status.getStatusCode()).append("endTime", new Date())));
+		}
+		else {
+			return harvest;
+		}
 	}
-
 }

@@ -1,11 +1,11 @@
 package gr.cite.earthserver.harvester.application.resources;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -65,7 +65,7 @@ public class HarvesterResource {
 		
 		//harvester.register(new WCSHarvestable(endpoint, schedule));
 		endpointAlias = endpointAlias == null ? UUID.randomUUID().toString() : endpointAlias; 
-		harvestable.setHarvest(new Harvest(endpoint, endpointAlias, new Schedule(period, TimeUnit.valueOf(periodType))));
+		harvestable.setHarvest(new Harvest(endpoint, endpointAlias, new Schedule(period, ChronoUnit.valueOf(periodType))));
 		//harvester.register(new WCSHarvestable(endpoint, schedule, this.wcsAdapter));
 		harvester.register(harvestable);
 		
@@ -123,8 +123,6 @@ public class HarvesterResource {
 	public Response stopHarvest(@QueryParam("id") String id) {
 		if (id != null) {			
 			harvester.stopHarvest(id);
-		} else {
-			harvester.stopHarvest();
 		}
 		
 		return Response.ok().build();
@@ -135,7 +133,7 @@ public class HarvesterResource {
     @Produces("application/javascript")
     public JSONPObject stopHarvestJSONP(
     		@QueryParam("id") String id,
-            @DefaultValue("callback") @QueryParam("callback") String callback) {
+            @DefaultValue("callback") @QueryParam("callback") String callback) { 
         return new JSONPObject(callback, this.stopHarvest(id).getEntity());
     }
 	
