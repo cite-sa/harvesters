@@ -1,7 +1,9 @@
-package gr.cite.earthserver.harvester.core;
+/*package gr.cite.earthserver.harvester.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gr.cite.earthserver.harvester.wcs.WCSHarvestable;
 
 class HarvestableTask implements Runnable {
 
@@ -22,5 +24,4 @@ class HarvestableTask implements Runnable {
 			logger.error(e.getMessage(), e);
 		}
 	}
-
-}
+}*/

@@ -1,53 +1,65 @@
 package gr.cite.earthserver.harvester;
 
-import java.util.concurrent.TimeUnit;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import gr.cite.earthserver.harvester.core.Harvestable;
 import gr.cite.earthserver.harvester.core.Harvester;
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
 import gr.cite.earthserver.harvester.datastore.model.Schedule;
 import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongo;
 import gr.cite.earthserver.harvester.wcs.WCSHarvestable;
-import gr.cite.earthserver.wcs.adapter.WCSAdapter;
-import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
 import gr.cite.earthserver.wcs.core.WCSRequestException;
-import gr.cite.earthserver.wcs.core.WCSResponse;
 import gr.cite.earthserver.wcs.utils.ParseException;
 import gr.cite.femme.client.FemmeDatastoreException;
 
 public class WCSHarvesterTest {
 	private Harvester harvester;
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(WCSHarvesterTest.class);
+
 	@Before
 	public void init() {
-		this.harvester = new Harvester(new HarvesterDatastoreMongo("localhost:27017", "harvester-db"));
+		this.harvester = new Harvester(new HarvesterDatastoreMongo("localhost:27017", "harvester-db-devel"));
 	}
-	
+
 	@Test
 	public void harvest() throws WCSRequestException, ParseException, FemmeDatastoreException {
-		
-		WCSAdapter wcsAdapter = new WCSAdapter("http://es-devel1.local.cite.gr:8080/femme-application");
+
+//		WCSAdapter wcsAdapter = new WCSAdapter("http://es-devel1.local.cite.gr:8080/femme-application");
 //		WCSAdapter wcsAdapter = new WCSAdapter("http://localhost:8081/femme-application");
+		
 		Harvest harvest = new Harvest();
-//		harvest.setEndpoint("http://access.planetserver.eu:8080/rasdaman/ows");
 		harvest.setEndpoint("https://rsg.pml.ac.uk/rasdaman/ows");
-		harvest.setSchedule(new Schedule(new Long(60), TimeUnit.DAYS));
-		
+		harvest.setSchedule(new Schedule(new Long(50), ChronoUnit.SECONDS));
+
 		WCSHarvestable wcsHarvestable = new WCSHarvestable();
-		wcsHarvestable.setWcsAdapter(wcsAdapter);
 		wcsHarvestable.setHarvest(harvest);
-		
-		
+
 		this.harvester.register(wcsHarvestable);
-		this.harvester.harvest();
+		logger.info(wcsHarvestable.getHarvest().getId()+" ready to be Harvested");
 		
-		
-		/*WCSRequestBuilder wcsRequestBuilder = new WCSRequestBuilder().endpoint("http://access.planetserver.eu:8080/rasdaman/ows");
-		WCSResponse describeCoverage = null;
-		describeCoverage = wcsRequestBuilder.describeCoverage().coverageId("frt0000cc22_07_if165l_trr3").build().get();
-		wcsAdapter.addCoverage(describeCoverage, "57dc1256d745904314b13b8b");*/
+//		Harvest harvest2 = new Harvest();
+//		harvest2.setEndpoint("http://access.planetserver.eu:8080/rasdaman/ows");
+//		harvest2.setSchedule(new Schedule(new Long(60), ChronoUnit.SECONDS));
+//		
+//		WCSHarvestable wcsHarvestable2 = new WCSHarvestable();
+//		wcsHarvestable2.setHarvest(harvest2);
+//		logger.info(wcsHarvestable2.getHarvest().getId()+" ready to be Harvested");
+//		
+//		this.harvester.register(wcsHarvestable2);
+//		
+//		Harvest harvest3 = new Harvest();
+//		harvest3.setEndpoint("http://earthserver.ecmwf.int/rasdaman/ows");
+//		harvest3.setSchedule(new Schedule(new Long(20), ChronoUnit.SECONDS));
+//
+//		WCSHarvestable wcsHarvestable3 = new WCSHarvestable();
+//		wcsHarvestable3.setHarvest(harvest3);
+//
+//		this.harvester.register(wcsHarvestable3);
+//		logger.info(wcsHarvestable3.getHarvest().getId()+" ready to be Harvested");
 	}
 }

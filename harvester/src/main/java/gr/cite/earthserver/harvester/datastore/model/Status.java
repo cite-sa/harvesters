@@ -1,6 +1,7 @@
 package gr.cite.earthserver.harvester.datastore.model;
 
 public enum Status {
+	
 	PENDING("pending"),
 	RUNNING("running"),
 	FINISHED("finished"),

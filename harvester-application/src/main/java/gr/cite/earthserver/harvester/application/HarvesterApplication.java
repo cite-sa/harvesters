@@ -15,4 +15,13 @@ public class HarvesterApplication extends ResourceConfig {
 		register(HarvesterResource.class);
 	}
 	
+//	public void setAsStopped() {
+//		Runtime.getRuntime().addShutdownHook(new Thread(){
+//			@Override
+//			public void run(){
+//				System.out.println("Test on close event");
+//			}
+//		});
+//	}
+	
 }

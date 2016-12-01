@@ -1,6 +1,6 @@
 package gr.cite.earthserver.harvester.datastore.model;
 
-import java.util.concurrent.TimeUnit;
+import java.time.temporal.ChronoUnit;
 
 public class Schedule {
 	
@@ -8,14 +8,14 @@ public class Schedule {
 
 	private Long period;
 	
-	private TimeUnit timeUnit;
+	private ChronoUnit timeUnit;
 
-	public Schedule(Long period, TimeUnit timeUnit) {
+	public Schedule(Long period, ChronoUnit timeUnit) {
 		this.period = period;
 		this.timeUnit = timeUnit;
 	}
 	
-	public Schedule(String id, Long period, TimeUnit timeUnit) {
+	public Schedule(String id, Long period, ChronoUnit timeUnit) {
 		this.id = id;
 		this.period = period;
 		this.timeUnit = timeUnit;
@@ -33,7 +33,7 @@ public class Schedule {
 		return period;
 	}
 
-	public TimeUnit getTimeUnit() {
+	public ChronoUnit getTimeUnit() {
 		return timeUnit;
 	}
 	
