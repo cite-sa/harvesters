@@ -33,6 +33,11 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	}
 	
 	@Override
+	public void close() {
+		this.mongoClient.close();
+	}
+	
+	@Override
 	public String insertHarvest(Harvest harvest) {
 		this.harvestCollection.insertOne(harvest);
 		return harvest.getId();

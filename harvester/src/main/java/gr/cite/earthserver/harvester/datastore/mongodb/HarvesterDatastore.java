@@ -9,6 +9,8 @@ import gr.cite.earthserver.harvester.datastore.model.Status;
 
 public interface HarvesterDatastore {
 	
+	public void close();
+	
 	public String insertHarvest(Harvest harvest);
 	
 	public String deleteHarvest(String id);
