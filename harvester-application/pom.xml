@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gr.cite.earthserver.harvester</groupId>
 	<artifactId>harvester-application</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1</version>
 	<packaging>war</packaging>
 	<name>WCS Harvester</name>
 
@@ -136,7 +136,7 @@
 		<dependency>
 			<groupId>gr.cite.earthserver.harvester</groupId>
 			<artifactId>harvester</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 		
 		<!-- Test dependencies -->
