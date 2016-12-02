@@ -9,11 +9,13 @@ import gr.cite.earthserver.harvester.datastore.model.Status;
 
 public interface HarvesterDatastore {
 	
-	public String registerHarvest(Harvest harvest);
+	public String insertHarvest(Harvest harvest);
 	
-	public String unregisterHarvest(String id);
+	public String deleteHarvest(String id);
 	
 	public String updateHarvest(Harvest harvest) throws OperationNotSupportedException;
+	
+	public Harvest updateHarvestStatus(String id, Status status);
 	
 	public Harvest getHarvestById(String id);
 	
@@ -26,7 +28,5 @@ public interface HarvesterDatastore {
 	public List<Harvest> getHarvests(Integer limit, Integer offset);
 	
 	public List<Harvest> getHarvestsToBeHarvested();
-	
-	public Harvest updateHarvestStatus(String id, Status status);
 	
 }

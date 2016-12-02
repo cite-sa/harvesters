@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import gr.cite.earthserver.harvester.core.Harvestable;
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
-import gr.cite.earthserver.wcs.adapter.WCSAdapter;
+import gr.cite.earthserver.wcs.adapter.api.WCSAdapterAPI;
 import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
 import gr.cite.earthserver.wcs.core.WCSRequestException;
 import gr.cite.earthserver.wcs.core.WCSResponse;
@@ -28,7 +28,7 @@ public class WCSHarvestable implements Harvestable {
 	
 	private Harvest harvest;
 	
-	private WCSAdapter wcsAdapter;
+	private WCSAdapterAPI wcsAdapter;
 
 	/*@Inject
 	public WCSHarvestable(WCSAdapterAPI wcsAdapter) {
@@ -36,7 +36,7 @@ public class WCSHarvestable implements Harvestable {
 	}*/
 	
 	@Inject
-	public void setWcsAdapter(WCSAdapter wcsAdapter) {
+	public void setWcsAdapter(WCSAdapterAPI wcsAdapter) {
 		this.wcsAdapter = wcsAdapter;
 	}
 	
@@ -76,7 +76,6 @@ public class WCSHarvestable implements Harvestable {
 			WCSResponse getCapabilities = wcsRequestBuilder.getCapabilities().build().get();
 			List<String> coverageIds = WCSParseUtils.getCoverageIds(getCapabilities.getResponse());
 			collectionId = this.wcsAdapter.insertServer(this.getHarvest().getEndpoint(), this.getHarvest().getEndpointAlias(), getCapabilities);
-			logger.info("DataElementInserted"+collectionId);
 
 			List<Future<String>> futures = new ArrayList<Future<String>>();
 			ExecutorService executor = Executors.newFixedThreadPool(4);
@@ -89,7 +88,8 @@ public class WCSHarvestable implements Harvestable {
 			
 			for(Future<String> future : futures) {
 				try {
-					future.get();
+					String coverageId = future.get();
+					logger.info("Coverage " + coverageId + " added to server " + collectionId);
 				} catch (InterruptedException e) {
 					logger.error(e.getMessage(), e);
 				} catch (ExecutionException e) {

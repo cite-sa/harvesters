@@ -1,6 +1,5 @@
 package gr.cite.earthserver.harvester.application.resources;
 
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,11 +7,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -20,12 +20,10 @@ import javax.ws.rs.core.Response;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
-
 import gr.cite.earthserver.harvester.core.Harvestable;
 import gr.cite.earthserver.harvester.core.Harvester;
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
-import gr.cite.earthserver.harvester.datastore.model.Schedule;
+import gr.cite.earthserver.harvester.datastore.model.Status;
 
 @Component
 @Path("harvester")
@@ -48,6 +46,7 @@ public class HarvesterResource {
 		this.harvestable = harvestable;
 	}
 	
+	
 	@GET
 	@Path("ping")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -56,111 +55,88 @@ public class HarvesterResource {
 	}
 
 	@POST
-	@Path("register")
-	public Response register(
-			@FormParam("endpoint") String endpoint,
-			@FormParam("endpointAlias") String endpointAlias,
-			@FormParam("period") Long period,
-			@FormParam("periodType") String periodType) {
+	@Path("harvests")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response register(Harvest harvest) {
 		
-		//harvester.register(new WCSHarvestable(endpoint, schedule));
-		endpointAlias = endpointAlias == null ? UUID.randomUUID().toString() : endpointAlias; 
-		harvestable.setHarvest(new Harvest(endpoint, endpointAlias, new Schedule(period, ChronoUnit.valueOf(periodType))));
-		//harvester.register(new WCSHarvestable(endpoint, schedule, this.wcsAdapter));
-		harvester.register(harvestable);
+		if (harvest.getEndpointAlias() == null) {
+			harvest.setEndpointAlias(UUID.randomUUID().toString());
+		}
+		harvestable.setHarvest(harvest);
+		String id = harvester.register(harvestable);
 		
-		return Response.ok().build();
+		return Response.ok(id).build();
 	}
 	
-	@GET
-	@Path("registerJSONP")
-	public JSONPObject registerJSONP(
-			@QueryParam("endpoint") String endpoint,
-			@QueryParam("endpointAlias") String endpointAlias,
-			@QueryParam("period") Long period,
-			@QueryParam("periodType") String periodType,
-			@QueryParam("callback") @DefaultValue("callback") String callback) {
-		return new JSONPObject(callback, register(endpoint, endpointAlias, period, periodType));
-		
+	@DELETE
+	@Path("harvests")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response unregister(Harvest harvest) {
+		String id = harvester.unregister(harvest.getId());
+		return Response.ok(id).build();
 	}
 	
 	@POST
-	@Path("unregister")
-	public Response unregister(@FormParam("endpoint") String endpoint) {
-		harvester.unregister(endpoint);
-		return Response.ok().build();
+	@Path("harvests/{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response editHarvest(@PathParam("id") String id, Status status) {
+		Harvest harvest = null;
+		if (Status.STOPPED.equals(status) || Status.PENDING.equals(status)) {
+			harvest = harvester.updateHarvestStatus(id, status);
+		}
+		
+		return Response.ok(harvest).build();
 	}
 	
-	@GET
-	@Path("unregisterJSONP")
-	public JSONPObject unregisterJSONP(@QueryParam("id") String id, @QueryParam("callback") @DefaultValue("callback") String callback) {
-		return new JSONPObject(callback, unregister(id));
-	}
-	
-	@POST
-	@Path("harvest")
-	public Response harvest(@QueryParam("id") String id) {
+	/*@POST
+	@Path("harvests/{id}/start")
+	public Response startHarvest(@PathParam("id") String id) {
 		if (id != null) {			
-			harvester.harvest(id);
+		harvester.startHarvest(id);
 		} else {
-			harvester.harvest();
+			harvester.startAllHarvests();
 		}
 		
 		return Response.ok().build();
 	}
-	
-	@GET
-    @Path("harvestJSONP")
-    @Produces("application/javascript")
-    public JSONPObject harvestJSONP(
-    		@QueryParam("id") String id,
-            @DefaultValue("callback") @QueryParam("callback") String callback) {
-        return new JSONPObject(callback, this.harvest(id).getEntity());
-    }
 	
 	@POST
-	@Path("stopHarvest")
-	public Response stopHarvest(@QueryParam("id") String id) {
-		if (id != null) {			
-			harvester.stopHarvest(id);
-		}
-		
-		return Response.ok().build();
-	}
+	@Path("harvests/{id}/stop")
+	public Response stopHarvest(@PathParam("id") String id) {
+		harvester.stopHarvest(id);
+		return Response.ok(id).build();
+	}*/
 	
 	@GET
-    @Path("stopHarvestJSONP")
-    @Produces("application/javascript")
-    public JSONPObject stopHarvestJSONP(
-    		@QueryParam("id") String id,
-            @DefaultValue("callback") @QueryParam("callback") String callback) { 
-        return new JSONPObject(callback, this.stopHarvest(id).getEntity());
-    }
+	@Path("/harvests/{id}")
+	public Response getHarvest(@PathParam("id") String id) {
+		Harvest harvest = harvester.getHarvest(id);
+		return Response.ok(harvest).build();
+	}
 	
 	@GET
 	@Path("/harvests")
 	public Response getHarvests(@QueryParam("limit") Integer limit, @QueryParam("offset") Integer offset) {
 		List<Harvest> harvests = harvester.getHarvests(limit, offset);
-		
 		return Response.ok(harvests).build();
 	}
 	
     @GET
     @Path("getHarvestsUI")
-    @Produces("application/javascript")
-    public JSONPObject getHarvestsUI(
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHarvestsUI(
             @QueryParam("request[Size]") Integer limit,
-            @QueryParam("request[Offset]") Integer offset,
-            @DefaultValue("callback") @QueryParam("callback") String callback) {
+            @QueryParam("request[Offset]") Integer offset) {
     	List<Harvest> harvests = harvester.getHarvests(limit, offset);
     	Map<String, Object> result = this.serialize(harvests);
-        return new JSONPObject(callback, result);
+        return Response.ok(result).build();
     }
 
-	private Map<String, Object> serialize(List<Harvest> harvests)
-	{
-		Map<String, Object> result = new HashMap<>();
+	private Map<String, Object> serialize(List<Harvest> harvests) {
 		
+		Map<String, Object> result = new HashMap<>();
 		List<Map<String, Object>> rows = new ArrayList<>();
 		
 		for(Harvest harvest : harvests) {

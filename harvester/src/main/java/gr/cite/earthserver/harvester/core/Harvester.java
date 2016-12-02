@@ -23,46 +23,35 @@ public class Harvester {
 
 	private HarvesterDatastore harvesterDatastore;
 
-	/*private Map<Harvestable, ScheduledExecutorService> harvestables;*/
-
-	private ScheduledExecutorService harvestExecutor;
 	
-
-	private HarvesterTask harvesterTask;
-
 	@Inject
 	public Harvester(HarvesterDatastore harvesterDatastore) {
 		this.harvesterDatastore = harvesterDatastore;
-		/*this.harvestables = this.buildHarvestableMap();*/
-		this.harvesterTask = harvesterTask;
-		this.harvestExecutor = Executors.newSingleThreadScheduledExecutor();
-		this.harvestExecutor.scheduleAtFixedRate(new HarvesterTask(this.harvesterDatastore),0,70,TimeUnit.SECONDS);
 	}
 	
-	/**
-	 * 
-	 * @param harvestable
-	 *            it is recommended to implement an {@code equals} and
-	 *            {@code hash} method in the implementation of
-	 *            {@linkplain Harvestable}
-	 */
+	public String register(Harvestable harvestable) {
+		return this.harvesterDatastore.insertHarvest(harvestable.getHarvest());
+	}
+
+	public String unregister(String id) {
+		return this.harvesterDatastore.deleteHarvest(id);
+	}
 	
-	public void register(Harvestable harvestable) {
-		harvesterDatastore.registerHarvest(harvestable.getHarvest());
-		logger.info("Endpoint " + harvestable.getHarvest().getEndpoint() + " has been registered successfully");
+	public Harvest updateHarvestStatus(String id, Status status) {
+		return this.harvesterDatastore.updateHarvestStatus(id, status);
 	}
 
-	public void unregister(String endpoint) {
-		this.harvesterDatastore.unregisterHarvest(endpoint);
+	public Harvest getHarvest(String id) {
+		return this.harvesterDatastore.getHarvestById(id);
 	}
 
-	public void unregister(Harvestable harvestable) {
-		harvesterDatastore.unregisterHarvest(harvestable.getHarvest().getId());
+	public List<Harvest> getHarvests(Integer limit, Integer offset) {
+		return this.harvesterDatastore.getHarvests(limit, offset);
 	}
-
-	public void harvest() {
-//		List <Harvest> harvests = this.harvesterDatastore.getHarvests();
-		List <Harvest> harvests = this.harvesterDatastore.getHarvestsToBeHarvested();
+	
+	public void startAllHarvests() {
+		
+		/*List <Harvest> harvests = this.harvesterDatastore.getHarvestsToBeHarvested();
 
 		for (Harvest harvest : harvests) {
 			WCSHarvestable harvestable = new WCSHarvestable();
@@ -73,22 +62,16 @@ public class Harvester {
 			} catch (FemmeDatastoreException e) {
 				logger.error(e.getMessage(),e);
 			}
-		}
+		}*/
+		
 	}
 
-	public void harvest(String id) {
-		this.harvesterDatastore.updateHarvestStatus(id, Status.RUNNING);
+	/*public Harvest startHarvest(String id) {
+		return this.harvesterDatastore.updateHarvestStatus(id, Status.RUNNING);
 	}
 
-	public void stopHarvest(String id) {
-		this.harvesterDatastore.updateHarvestStatus(id, Status.STOPPED);
-	}
-
-	public List<Harvest> getHarvests(Integer limit, Integer offset) {
-		return this.harvesterDatastore.getHarvests(limit, offset);
-	}
-
-	/*private Map<Harvestable, ScheduledExecutorService> buildHarvestableMap() {
-		return new HashMap<>();
+	public Harvest stopHarvest(String id) {
+		return this.harvesterDatastore.updateHarvestStatus(id, Status.STOPPED);
 	}*/
+	
 }

@@ -2,23 +2,34 @@ package gr.cite.earthserver.harvester.datastore.model;
 
 import java.time.temporal.ChronoUnit;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonInclude(Include.NON_EMPTY)
 public class Schedule {
 	
 	private String id;
 
+	@JsonProperty
 	private Long period;
 	
-	private ChronoUnit timeUnit;
+	@JsonProperty
+	private ChronoUnit periodType;
 
-	public Schedule(Long period, ChronoUnit timeUnit) {
-		this.period = period;
-		this.timeUnit = timeUnit;
+	public Schedule() {
+		
 	}
 	
-	public Schedule(String id, Long period, ChronoUnit timeUnit) {
+	public Schedule(Long period, ChronoUnit periodType) {
+		this.period = period;
+		this.periodType = periodType;
+	}
+	
+	public Schedule(String id, Long period, ChronoUnit periodType) {
 		this.id = id;
 		this.period = period;
-		this.timeUnit = timeUnit;
+		this.periodType = periodType;
 	}
 
 	public String getId() {
@@ -33,8 +44,8 @@ public class Schedule {
 		return period;
 	}
 
-	public ChronoUnit getTimeUnit() {
-		return timeUnit;
+	public ChronoUnit getPeriodType() {
+		return periodType;
 	}
 	
 	

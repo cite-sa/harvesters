@@ -49,8 +49,8 @@ public class ScheduleCodec implements CollectibleCodec<Schedule> {
 			writer.writeInt64(ScheduleCodec.SCHEDULE_PERIOD_KEY, value.getPeriod().longValue());
 		}
 		
-		if (value.getTimeUnit() != null) {
-			writer.writeString(ScheduleCodec.SCHEDULE_TIME_UNIT_KEY, value.getTimeUnit().name());
+		if (value.getPeriodType() != null) {
+			writer.writeString(ScheduleCodec.SCHEDULE_TIME_UNIT_KEY, value.getPeriodType().name());
 		}
 
 		writer.writeEndDocument();

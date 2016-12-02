@@ -41,10 +41,8 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 		describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
 	
 		if(collectionId != null) {
-//			logger.info(describeCoverage+" coverage inserted");
 			return adapter.addCoverage(describeCoverage, collectionId);
 		} else {
-//			logger.info(describeCoverage+" coverage inserted");
 			return adapter.insertCoverage(describeCoverage);
 		}
 	}
