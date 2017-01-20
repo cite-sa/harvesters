@@ -1,21 +1,22 @@
 package gr.cite.earthserver.harvester.core;
 
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
+import gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastore;
 
-/**
+/*
  * 
  * The {@code Harvestable} interface should be implemented by any class whose
  * instances are intended to be registered and executed by the {@link Harvester}
  * 
- * @author Ioannis Kavvouras
- *
  */
 public interface Harvestable {
-	
-	//private Harvest harvest;
+
+	public HarvesterDatastore getHarvesterDatastore();
+
+	public void setHarvesterDatastore(HarvesterDatastore harvesterDatastore);
 
 	public Harvest getHarvest();
-	
+
 	public void setHarvest(Harvest harvest);
 
 	/**
@@ -26,7 +27,7 @@ public interface Harvestable {
 	 * @throws Exception
 	 *             if unable to harvest the source
 	 */
-	public String harvest() throws Exception;
+	public Harvest harvest() throws Exception;
 	
 
 }

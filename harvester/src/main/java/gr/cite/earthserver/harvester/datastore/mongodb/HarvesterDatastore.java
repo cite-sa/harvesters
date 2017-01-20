@@ -1,10 +1,12 @@
 package gr.cite.earthserver.harvester.datastore.mongodb;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.OperationNotSupportedException;
 
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
+import gr.cite.earthserver.harvester.datastore.model.HarvestCycle;
 import gr.cite.earthserver.harvester.datastore.model.Status;
 
 public interface HarvesterDatastore {
@@ -15,9 +17,11 @@ public interface HarvesterDatastore {
 	
 	public String deleteHarvest(String id);
 	
-	public String updateHarvest(Harvest harvest) throws OperationNotSupportedException;
+	public Harvest updateHarvest(Harvest harvest);
 	
 	public Harvest updateHarvestStatus(String id, Status status);
+
+	public Harvest updateHarvestStatus(String id, Status status, String errorMessage);
 	
 	public Harvest getHarvestById(String id);
 	
@@ -30,5 +34,9 @@ public interface HarvesterDatastore {
 	public List<Harvest> getHarvests(Integer limit, Integer offset);
 	
 	public List<Harvest> getHarvestsToBeHarvested();
-	
+
+	public Harvest incrementHarvestedElementsCounters(String harvestId, HarvestCycle harvestCycle);
+
+	/*public Harvest incrementHarvestedElementsCounters(String id, Map<String, Integer> incrementValuePerField);*/
+
 }

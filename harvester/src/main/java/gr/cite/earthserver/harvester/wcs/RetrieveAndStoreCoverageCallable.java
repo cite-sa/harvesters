@@ -24,11 +24,7 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 	
 	private String coverageId;
 	
-	public RetrieveAndStoreCoverageCallable(
-			WCSRequestBuilder wcsRequestBuilder,
-			WCSAdapterAPI adapter,
-			String collectionId,
-			String coverageId) {
+	public RetrieveAndStoreCoverageCallable(WCSRequestBuilder wcsRequestBuilder, WCSAdapterAPI adapter, String collectionId, String coverageId) {
 		this.wcsRequestBuilder = wcsRequestBuilder;
 		this.adapter = adapter;
 		this.collectionId = collectionId;
@@ -37,10 +33,8 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 		
 	@Override
 	public String call() throws FemmeDatastoreException, WCSRequestException, ParseException {
-		WCSResponse describeCoverage = null;
-		describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
-	
-		if(collectionId != null) {
+		WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
+		if (collectionId != null) {
 			return adapter.addCoverage(describeCoverage, collectionId);
 		} else {
 			return adapter.insertCoverage(describeCoverage);

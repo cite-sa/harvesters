@@ -47,6 +47,5 @@ public class Schedule {
 	public ChronoUnit getPeriodType() {
 		return periodType;
 	}
-	
-	
+
 }

@@ -1,7 +1,11 @@
 package gr.cite.earthserver.harvester.datastore.mongodb.codecs;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
+import gr.cite.earthserver.harvester.datastore.model.HarvestCycle;
+import gr.cite.femme.model.Metadatum;
 import org.bson.BsonReader;
 import org.bson.BsonString;
 import org.bson.BsonType;
@@ -22,10 +26,12 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 	private static final String HARVEST_ID_KEY = "_id";
 	private static final String HARVEST_ENDPOINT_KEY = "endpoint";
 	private static final String HARVEST_ENDPOINT_ALIAS_KEY = "endpointAlias";
-	private static final String HARVEST_START_TIME_KEY = "startTime";
-	private static final String HARVEST_END_TIME_KEY = "endTime";
 	private static final String HARVEST_SCHEDULE_KEY = "schedule";
 	private static final String HARVEST_STATUS_KEY = "status";
+	private static final String HARVEST_CURRENT_HARVEST_CYCLE_KEY = "currentHarvestCycle";
+	private static final String HARVEST_PREVIOUS_HARVEST_CYCLES_KEY = "previousHarvestCycles";
+	private static final String HARVEST_CREATED_KEY = "created";
+	private static final String HARVEST_MODIFIED_KEY = "modified";
 	
 	private CodecRegistry codecRegistry;
 	
@@ -50,12 +56,6 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 		if (value.getEndpointAlias() != null) {
 			writer.writeString(HarvestCodec.HARVEST_ENDPOINT_ALIAS_KEY, value.getEndpointAlias());
 		}
-		if (value.getStartTime() != null) {
-			writer.writeDateTime(HarvestCodec.HARVEST_START_TIME_KEY, value.getStartTime().toEpochMilli());
-		}
-		if (value.getEndTime() != null) {
-			writer.writeDateTime(HarvestCodec.HARVEST_END_TIME_KEY, value.getEndTime().toEpochMilli());
-		}
 		if (value.getSchedule() != null) {
 			writer.writeName(HARVEST_SCHEDULE_KEY);
 			encoderContext.encodeWithChildContext(codecRegistry.get(Schedule.class), writer, value.getSchedule());
@@ -63,7 +63,24 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 		if (value.getStatus() != null) {
 			writer.writeString(HarvestCodec.HARVEST_STATUS_KEY, value.getStatus().getStatusCode());
 		}
-		
+		if (value.getCurrentHarvestCycle() != null) {
+			writer.writeName(HarvestCodec.HARVEST_CURRENT_HARVEST_CYCLE_KEY);
+			encoderContext.encodeWithChildContext(codecRegistry.get(HarvestCycle.class), writer, value.getCurrentHarvestCycle());
+		}
+		if (value.getPreviousHarvestCycles() != null && value.getPreviousHarvestCycles().size() > 0) {
+			writer.writeStartArray(HarvestCodec.HARVEST_PREVIOUS_HARVEST_CYCLES_KEY);
+			for (HarvestCycle harvestCycle: value.getPreviousHarvestCycles()) {
+				encoderContext.encodeWithChildContext(codecRegistry.get(HarvestCycle.class), writer, harvestCycle);
+			}
+			writer.writeEndArray();
+		}
+		if (value.getCreated() != null) {
+			writer.writeDateTime(HarvestCodec.HARVEST_CREATED_KEY, value.getCreated().toEpochMilli());
+		}
+		if (value.getModified() != null) {
+			writer.writeDateTime(HarvestCodec.HARVEST_MODIFIED_KEY, value.getModified().toEpochMilli());
+		}
+
 		writer.writeEndDocument();
 	}
 
@@ -75,9 +92,11 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 	@Override
 	public Harvest decode(BsonReader reader, DecoderContext decoderContext) {
 		String id = null, endpoint = null, endpointAlias = null;
-		Instant startTime = null, endTime = null;
 		Schedule schedule = null;
 		Status status = null;
+		HarvestCycle currentHarvestCycle = null;
+		List<HarvestCycle> previousHarvestCycles = null;
+		Instant created = null, modified = null;
 		
 		reader.readStartDocument();
 		
@@ -90,17 +109,29 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
             	endpoint = reader.readString();
             } else if (fieldName.equals(HarvestCodec.HARVEST_ENDPOINT_ALIAS_KEY)) {
             	endpointAlias = reader.readString();
-            } else if (fieldName.equals(HarvestCodec.HARVEST_START_TIME_KEY)) {
-            	startTime = Instant.ofEpochMilli(reader.readDateTime());
-            } else if (fieldName.equals(HarvestCodec.HARVEST_END_TIME_KEY)) {
-            	endTime = Instant.ofEpochMilli(reader.readDateTime());
             } else if (fieldName.equals(HarvestCodec.HARVEST_SCHEDULE_KEY)) {
             	if (reader.getCurrentBsonType() == BsonType.DOCUMENT) {
             		schedule = codecRegistry.get(Schedule.class).decode(reader, decoderContext);            		
             	}
             } else if (fieldName.equals(HarvestCodec.HARVEST_STATUS_KEY)) {
             	status = Status.getEnum(reader.readString());
-            }
+			} else if (fieldName.equals(HarvestCodec.HARVEST_CURRENT_HARVEST_CYCLE_KEY)) {
+				if (reader.getCurrentBsonType() == BsonType.DOCUMENT) {
+					currentHarvestCycle = codecRegistry.get(HarvestCycle.class).decode(reader, decoderContext);
+				}
+            } else if (fieldName.equals(HarvestCodec.HARVEST_PREVIOUS_HARVEST_CYCLES_KEY)) {
+				previousHarvestCycles = new ArrayList<>();
+
+				reader.readStartArray();
+				while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
+					previousHarvestCycles.add(codecRegistry.get(HarvestCycle.class).decode(reader, decoderContext));
+				}
+				reader.readEndArray();
+			} else if (fieldName.equals(HarvestCodec.HARVEST_CREATED_KEY)) {
+				created = Instant.ofEpochMilli(reader.readDateTime());
+			} else if (fieldName.equals(HarvestCodec.HARVEST_MODIFIED_KEY)) {
+				modified = Instant.ofEpochMilli(reader.readDateTime());
+			}
 		}
 		
 		reader.readEndDocument();
@@ -109,10 +140,12 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 		harvest.setId(id);
 		harvest.setEndpoint(endpoint);
 		harvest.setEndpointAlias(endpointAlias);
-		harvest.setStartTime(startTime);
-		harvest.setEndTime(endTime);
 		harvest.setSchedule(schedule);
 		harvest.setStatus(status);
+		harvest.setCurrentHarvestCycle(currentHarvestCycle);
+		harvest.setPreviousHarvestCycles(previousHarvestCycles);
+		harvest.setCreated(created);
+		harvest.setModified(modified);
 
 		return harvest;
 	}

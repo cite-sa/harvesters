@@ -2,21 +2,18 @@ package gr.cite.earthserver.harvester.datastore.mongodb;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import javax.naming.OperationNotSupportedException;
-
+import com.mongodb.client.model.*;
+import gr.cite.earthserver.harvester.datastore.model.HarvestCycle;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.FindOneAndDeleteOptions;
-import com.mongodb.client.model.Projections;
 
 import gr.cite.earthserver.harvester.datastore.model.Harvest;
 import gr.cite.earthserver.harvester.datastore.model.Status;
@@ -27,9 +24,12 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	
 	private MongoCollection<Harvest> harvestCollection;
 
-	public HarvesterDatastoreMongo(String dbHost, String dbName) {
+	private Integer maxLoggedHarvestCycles;
+
+	public HarvesterDatastoreMongo(String dbHost, String dbName, Integer maxLoggedHarvestCycles) {
 		this.mongoClient = new HarvesterDatastoreMongoClient(dbHost, dbName);
 		this.harvestCollection = this.mongoClient.getHarvestCollection();
+		this.maxLoggedHarvestCycles = maxLoggedHarvestCycles;
 	}
 	
 	@Override
@@ -39,13 +39,16 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	
 	@Override
 	public String insertHarvest(Harvest harvest) {
-		this.harvestCollection.insertOne(harvest);
+		harvest.setCreated(Instant.now());
+		harvest.setModified(null);
+
+		harvestCollection.insertOne(harvest);
 		return harvest.getId();
 	}
 	
 	@Override
 	public String deleteHarvest(String id) {
-		Harvest harvest = this.harvestCollection.findOneAndDelete(Filters.eq("_id", new ObjectId(id)),
+		Harvest harvest = harvestCollection.findOneAndDelete(Filters.eq("_id", new ObjectId(id)),
 				new FindOneAndDeleteOptions().projection(Projections.include("_id")));
 		
 		return harvest != null ? harvest.getId() : null;
@@ -53,38 +56,77 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	}
 
 	@Override
-	public String updateHarvest(Harvest harvest) throws OperationNotSupportedException {
-		throw new OperationNotSupportedException("Update harvest not supported yet");
+	public Harvest updateHarvest(Harvest harvest) {
+		harvest.setCreated(null);
+		harvest.setModified(Instant.now());
+
+		return harvestCollection.findOneAndUpdate(
+				Filters.eq("_id", new ObjectId(harvest.getId())),
+				new Document().append("$set", harvest),
+				new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER));
 	}
-	
+
 	@Override
-	public Harvest updateHarvestStatus(String id, Status status) {
-		
+	public Harvest updateHarvestStatus(String harvestId, Status status) {
+		return updateHarvestStatus(harvestId, status, null);
+	}
+
+	@Override
+	public Harvest updateHarvestStatus(String harvestId, Status status, String errorMessage) {
+
 		Harvest harvest = null;
 		
-		if(Status.RUNNING.equals(status)){
-			return this.harvestCollection.findOneAndUpdate(
-					Filters.eq("_id", new ObjectId(id)),
-					new Document().append("$set", new Document().append("status", status.getStatusCode()).append("startTime", new Date())));
-		} else if(Status.STOPPED.equals(status)){
-			return this.harvestCollection.findOneAndUpdate(
-					Filters.eq("_id", new ObjectId(id)),
-					new Document().append("$set", new Document().append("status", status.getStatusCode())));
-		} else if(Status.PENDING.equals(status)){
-			return this.harvestCollection.findOneAndUpdate(
-					Filters.eq("_id", new ObjectId(id)),
-					new Document().append("$set", new Document().append("status", status.getStatusCode())));
-		} else if(Status.ERROR.equals(status)){
-			return this.harvestCollection.findOneAndUpdate(
-					Filters.eq("_id", new ObjectId(id)),
-					new Document().append("$set", new Document().append("status", status.getStatusCode())));
-		} else if(Status.FINISHED.equals(status)){
-			return this.harvestCollection.findOneAndUpdate(
-					Filters.eq("_id", new ObjectId(id)),
-					new Document().append("$set", new Document().append("status", status.getStatusCode()).append("endTime", new Date())));
-		} else {
-			return harvest;
+		if(Status.RUNNING.equals(status)) {
+			harvest = getHarvestById(harvestId);
+
+			harvest.setStatus(status);
+
+			if (harvest.getPreviousHarvestCycles() == null) {
+				harvest.setPreviousHarvestCycles(new ArrayList<>());
+			}
+			List<HarvestCycle> previousHarvestCycles = harvest.getPreviousHarvestCycles();
+			if (previousHarvestCycles.size() == maxLoggedHarvestCycles) {
+				previousHarvestCycles.stream().sorted(Comparator.comparing(HarvestCycle::getStartTime)).findFirst().ifPresent(oldestHarvestCycle -> {
+					previousHarvestCycles.removeIf(harvestCycle -> harvestCycle.getId().equals(oldestHarvestCycle.getId()));
+				});
+
+			}
+			if (harvest.getCurrentHarvestCycle() != null) {
+				previousHarvestCycles.add(harvest.getCurrentHarvestCycle());
+			}
+
+			harvest.setCurrentHarvestCycle(new HarvestCycle());
+		} else if (Status.STOPPED.equals(status) || Status.PENDING.equals(status)) {
+			harvest = new Harvest();
+			harvest.setId(harvestId);
+			harvest.setStatus(status);
+		} else if (Status.ERROR.equals(status)) {
+			if (errorMessage == null) {
+				throw new IllegalArgumentException("Error message can not be null");
+			}
+			harvest = getHarvestById(harvestId);
+			harvest.setEndpoint(null);
+			harvest.setEndpointAlias(null);
+			harvest.setSchedule(null);
+			harvest.setStatus(status);
+			HarvestCycle currentHarvestCycle = harvest.getCurrentHarvestCycle() == null ? new HarvestCycle() : harvest.getCurrentHarvestCycle();
+			currentHarvestCycle.setEndTime(Instant.now());
+			currentHarvestCycle.setErrorMessage(errorMessage);
+			harvest.setPreviousHarvestCycles(null);
+
+		} else if (Status.FINISHED.equals(status)) {
+			harvest = getHarvestById(harvestId);
+
+			harvest.setEndpoint(null);
+			harvest.setEndpointAlias(null);
+			harvest.setSchedule(null);
+			harvest.setStatus(status);
+			harvest.setPreviousHarvestCycles(null);
+
+			harvest.getCurrentHarvestCycle().setEndTime(Instant.now());
 		}
+
+		return updateHarvest(harvest);
 	}
 
 	@Override
@@ -123,7 +165,7 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 		return harvests;
 	}
 	
-	public List<Harvest> getHarvestsToBeHarvested(){
+	public List<Harvest> getHarvestsToBeHarvested() {
 		
 		List <Harvest> harvests = new ArrayList<>();
 		
@@ -145,7 +187,7 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 				} else if (Status.FINISHED.equals(harvest.getStatus()) || Status.ERROR.equals(harvest.getStatus())) {
 					
 					Duration period = Duration.of(harvest.getSchedule().getPeriod(), harvest.getSchedule().getPeriodType());
-					Instant endtimeOfHarvest = harvest.getEndTime();
+					Instant endtimeOfHarvest = harvest.getCurrentHarvestCycle().getEndTime();
 					Instant now = Instant.now();
 					Duration timePassed = Duration.between(endtimeOfHarvest, now);
 					
@@ -156,11 +198,43 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 				
 			}
 		} finally {
-			harvestCursor.close();
+			if (harvestCursor != null) {
+				harvestCursor.close();
+			}
 		}
 		
 		return harvests;
 	}
-	
-	
+
+	@Override
+	public Harvest incrementHarvestedElementsCounters(String harvestId, HarvestCycle harvestCycle) {
+		Objects.requireNonNull(harvestId, "Harvest ID can not be null");
+		Objects.requireNonNull(harvestCycle, "Harvest cycle can not be null");
+
+		//List<Bson> updates = incrementValuePerField.entrySet().stream().map(fieldAndValue -> Updates.inc(fieldAndValue.getKey(), fieldAndValue.getValue())).collect(Collectors.toList());
+		return harvestCollection.findOneAndUpdate(
+				Filters.eq("_id", new ObjectId(harvestId)),
+				new Document().append("$inc",
+						new Document().append("currentHarvestCycle.totalElements", harvestCycle.getTotalElements())
+								.append("currentHarvestCycle.newElements",harvestCycle.getNewElements())
+								.append("currentHarvestCycle.updatedElements", harvestCycle.getUpdatedElements())
+								.append("currentHarvestCycle.failedElements", harvestCycle.getFailedElements())),
+				new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+		);
+	}
+
+
+	//@Override
+	public Harvest incrementHarvestMetadata(String id, Map<String, Integer> incrementValuePerField) {
+		Objects.requireNonNull(id, "ID can not be null");
+		Objects.requireNonNull(incrementValuePerField, "Fields and values can not be null");
+
+		List<Bson> updates = incrementValuePerField.entrySet().stream().map(fieldAndValue -> Updates.inc(fieldAndValue.getKey(), fieldAndValue.getValue())).collect(Collectors.toList());
+		return harvestCollection.findOneAndUpdate(
+				Filters.eq("_id", new ObjectId(id)),
+				Updates.combine(updates),
+				new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+		);
+	}
+
 }

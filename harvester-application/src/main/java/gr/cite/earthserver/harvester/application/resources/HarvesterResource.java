@@ -32,8 +32,6 @@ public class HarvesterResource {
 
 	private Harvester harvester;
 	
-	//private WCSAdapterAPI wcsAdapter;
-	
 	private Harvestable harvestable;
 
 	@Inject
@@ -49,7 +47,7 @@ public class HarvesterResource {
 	
 	@GET
 	@Path("ping")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response ping() {
 		return Response.ok("pong").build();
 	}
@@ -57,7 +55,7 @@ public class HarvesterResource {
 	@POST
 	@Path("harvests")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response register(Harvest harvest) {
 		
 		if (harvest.getEndpointAlias() == null) {
@@ -72,7 +70,7 @@ public class HarvesterResource {
 	@DELETE
 	@Path("harvests")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response unregister(Harvest harvest) {
 		String id = harvester.unregister(harvest.getId());
 		return Response.ok(id).build();
@@ -146,9 +144,16 @@ public class HarvesterResource {
 			rowData.put("ID", harvest.getId().toString());
 			rowData.put("Endpoint", harvest.getEndpoint().toString());
 			rowData.put("EndpointAlias", harvest.getEndpointAlias().toString());
-			rowData.put("SchedulePeriod", harvest.getSchedule().getPeriod().toString());
-			rowData.put("StartTime", harvest.getStartTime() == null ? "" : harvest.getStartTime().toString());
-			rowData.put("EndTime", harvest.getEndTime() == null ? "" : harvest.getEndTime().toString());
+			rowData.put("SchedulePeriod", harvest.getSchedule().getPeriod().toString() + " " + harvest.getSchedule().getPeriodType().toString());
+			rowData.put("StartTime",
+					harvest.getCurrentHarvestCycle() == null ? "" : harvest.getCurrentHarvestCycle().getStartTime() == null
+						? "" : harvest.getCurrentHarvestCycle().getStartTime().toString()
+			);
+			rowData.put("EndTime",
+					harvest.getCurrentHarvestCycle() == null ? "" : harvest.getCurrentHarvestCycle().getEndTime() == null
+							? "" : harvest.getCurrentHarvestCycle().getEndTime().toString()
+			);
+//			rowData.put("EndTime", harvest.getCurrentHarvestCycle().getEndTime() == null ? "" : harvest.getCurrentHarvestCycle().getEndTime().toString());
 			rowData.put("Status", harvest.getStatus().toString());
 			
 			row.put("Data", rowData);

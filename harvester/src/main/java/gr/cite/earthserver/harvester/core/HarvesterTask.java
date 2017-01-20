@@ -35,18 +35,12 @@ public class HarvesterTask implements Runnable {
 	@Override
 	public void run() {
 		List<Harvest> harvests = this.harvesterDatastore.getHarvestsToBeHarvested();
-		try {
-			if (harvests.size() > 0) {
-				harvest(harvests);
-			}
-		} catch (InterruptedException e){
-			logger.error(e.getMessage(),e);
-		} catch (ExecutionException e){
-			logger.error(e.getMessage(),e);
+		if (harvests.size() > 0) {
+			harvest(harvests);
 		}
 	}
 
-	private void harvest(List<Harvest> harvests) throws InterruptedException , ExecutionException {
+	private void harvest(List<Harvest> harvests) {
 		
 		ExecutorService executor = Executors.newFixedThreadPool(5);
 
@@ -54,28 +48,33 @@ public class HarvesterTask implements Runnable {
 			
 			WCSHarvestable harvestable = new WCSHarvestable();
 			harvestable.setHarvest(harvest);
-//			harvestable.setWcsAdapter(new WCSAdapter("http://localhost:8081/femme-application"));
 			harvestable.setWcsAdapter(wcsAdapter);
-			executor.submit(new Runnable() {
-				
-				@Override
-				public void run() {
-					harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.RUNNING);
-					try {
-						
-						logger.debug("Starting Harvest of " + harvestable.getHarvest().getEndpoint());
-						harvestable.harvest();
-						logger.debug("Finished Harvest of " + harvestable.getHarvest().getEndpoint());
-						
-					} catch (FemmeDatastoreException e) {
-						logger.error(e.getMessage(),e);
-						harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.ERROR);
-						return;
-					}
-					
-					harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.FINISHED);
-				}
-			});
+			harvestable.setHarvesterDatastore(harvesterDatastore);
+			executor.submit(() -> {
+                harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.RUNNING);
+                try {
+
+                    //logger.debug("Starting harvest of " + harvestable.getHarvest().getEndpoint());
+                    Harvest updatedHarvest = harvestable.harvest();
+                    //logger.debug("Finished harvest of " + harvestable.getHarvest().getEndpoint());
+					logger.debug("Completed harvest cycle " + updatedHarvest.getCurrentHarvestCycle().getId() + " for endpoint " + updatedHarvest.getEndpoint());
+					logger.info("------------------- Harvest Statistics -------------------");
+					logger.info("Harvest endpoint: " + updatedHarvest.getEndpoint());
+					logger.info("Total elements: " + updatedHarvest.getCurrentHarvestCycle().getTotalElements());
+					logger.info("New elements: " + updatedHarvest.getCurrentHarvestCycle().getNewElements());
+					logger.info("Updated elements: " + updatedHarvest.getCurrentHarvestCycle().getUpdatedElements());
+					logger.info("Failed elements: " + updatedHarvest.getCurrentHarvestCycle().getFailedElements());
+					logger.info("----------------------------------------------------------");
+
+                } catch (FemmeDatastoreException e) {
+					logger.error("Harvest for endpoint " + harvestable.getHarvest().getEndpoint() + " failed with error message " + e.getMessage(),e);
+                    logger.error(e.getMessage(),e);
+                    harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.ERROR, e.getMessage());
+                    return;
+                }
+
+                harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.FINISHED);
+            });
 		}
 		executor.shutdown();
 	}

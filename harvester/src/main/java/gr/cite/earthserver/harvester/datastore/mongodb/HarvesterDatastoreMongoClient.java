@@ -1,5 +1,6 @@
 package gr.cite.earthserver.harvester.datastore.mongodb;
 
+import gr.cite.earthserver.harvester.datastore.mongodb.codecs.HarvestCycleCodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 
@@ -34,7 +35,7 @@ public class HarvesterDatastoreMongoClient {
 		this.database = this.client.getDatabase(dbName);
 
 		CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
-				CodecRegistries.fromProviders(new HarvestCodecProvider(), new ScheduleCodecProvider()));
+				CodecRegistries.fromProviders(new HarvestCodecProvider(), new ScheduleCodecProvider(), new HarvestCycleCodecProvider()));
 
 		this.harvests = this.database.getCollection(HARVEST_COLLECTION_NAME, Harvest.class).withCodecRegistry(codecRegistry);
 	}

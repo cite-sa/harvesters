@@ -1,6 +1,8 @@
 package gr.cite.earthserver.harvester.datastore.model;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bson.types.ObjectId;
 
@@ -21,20 +23,27 @@ public class Harvest {
 	private String endpointAlias;
 	
 	@JsonProperty
-	private Instant startTime;
-
-	@JsonProperty
-	private Instant endTime;
-	
-	@JsonProperty
 	private Schedule schedule;
 	
 	@JsonProperty
 	private Status status;
+
+	@JsonProperty
+	private HarvestCycle currentHarvestCycle;
+
+	@JsonProperty
+	private List<HarvestCycle> previousHarvestCycles;
+
+	@JsonProperty
+	private Instant created;
+
+	@JsonProperty
+	private Instant modified;
 	
 	public Harvest() {
 		this.id = new ObjectId().toString();
 		this.status = Status.PENDING;
+		this.previousHarvestCycles = new ArrayList<>();
 	}
 	
 	public Harvest(String endpoint, String endpointAlias, Schedule schedule) {
@@ -43,6 +52,7 @@ public class Harvest {
 		this.endpointAlias = endpointAlias;
 		this.schedule = schedule;
 		this.status = Status.PENDING;
+		this.previousHarvestCycles = new ArrayList<>();
 	}
 	
 	public String getId() {
@@ -69,22 +79,6 @@ public class Harvest {
 		this.endpointAlias = endpointAlias;
 	}
 
-	public Instant getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Instant startTime) {
-		this.startTime = startTime;
-	}
-
-	public Instant getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Instant endTime) {
-		this.endTime = endTime;
-	}
-
 	public Schedule getSchedule() {
 		return schedule;
 	}
@@ -99,5 +93,37 @@ public class Harvest {
 
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+
+	public HarvestCycle getCurrentHarvestCycle() {
+		return currentHarvestCycle;
+	}
+
+	public void setCurrentHarvestCycle(HarvestCycle currentHarvestCycle) {
+		this.currentHarvestCycle = currentHarvestCycle;
+	}
+
+	public List<HarvestCycle> getPreviousHarvestCycles() {
+		return previousHarvestCycles;
+	}
+
+	public void setPreviousHarvestCycles(List<HarvestCycle> previousHarvestCycles) {
+		this.previousHarvestCycles = previousHarvestCycles;
+	}
+
+	public Instant getCreated() {
+		return created;
+	}
+
+	public void setCreated(Instant created) {
+		this.created = created;
+	}
+
+	public Instant getModified() {
+		return modified;
+	}
+
+	public void setModified(Instant modified) {
+		this.modified = modified;
 	}
 }

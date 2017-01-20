@@ -3,24 +3,24 @@
 
 	<!-- <property name="WEBAPP_LOGS" value="/home/kapostolopoulos/apache-tomcat-8.5.4/logs" /> -->
 
-	<!-- <appender name="FILE-AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${CATALINA_HOME}/logs/femme.log</file>
-		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
-		</encoder>
+	 <!--<appender name="FILE-AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${CATALINA_HOME}/logs/harvester.log</file>
+
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			rollover daily
 			<fileNamePattern>${CATALINA_HOME}/logs/archived/femme.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
 				<maxFileSize>10MB</maxFileSize>
 			</timeBasedFileNamingAndTriggeringPolicy>
 		</rollingPolicy>
-	</appender> -->
+
+		 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			 <Pattern>%date{ISO8601} [%thread] %-5level %logger{36} - %message%n</Pattern>
+		 </encoder>
+	</appender>-->
 	
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+			<Pattern>%date{ISO8601} [%thread] %-5level %logger{36} - %message%n</Pattern>
 		</encoder>
     </appender>
 

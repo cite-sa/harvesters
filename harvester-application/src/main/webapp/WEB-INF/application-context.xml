@@ -31,8 +31,9 @@
 
 	<bean id="harvesterDatastore" name="harvesterDatastore"
 		class="gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongo">
-		<constructor-arg value="${gr.cite.femme.earthserver.harvester.mongodb.host}" />
-		<constructor-arg value="${gr.cite.femme.earthserver.harvester.mongodb.name}" />
+		<constructor-arg value="${gr.cite.femme.earthserver.harvester.datastore.mongodb.host}" />
+		<constructor-arg value="${gr.cite.femme.earthserver.harvester.datastore.mongodb.name}" />
+		<constructor-arg value="${gr.cite.femme.earthserver.harvester.harvests.maxLoggedHarvestCycles}" />
 	</bean>
 
 	<bean id="harvester" class="gr.cite.earthserver.harvester.core.Harvester">
@@ -46,7 +47,7 @@
 	</bean>
 
 	<task:scheduled-tasks scheduler="harvestScheduler">
-	    <task:scheduled ref="harvesterTask" method="run" fixed-rate="60000"/>
+	    <task:scheduled ref="harvesterTask" method="run" fixed-rate="${gr.cite.femme.earthserver.harvester.cycle.milliseconds}" />
 	</task:scheduled-tasks>
 
 	<task:annotation-driven scheduler="harvestScheduler" />
@@ -56,7 +57,7 @@
 	<bean id="harvesterResource"
 		class="gr.cite.earthserver.harvester.application.resources.HarvesterResource">
 		<constructor-arg ref="harvester" />
-		<property name="harvestable" ref="wcsHarvestable"></property>
+		<property name="harvestable" ref="wcsHarvestable" />
 	</bean>
 
 
