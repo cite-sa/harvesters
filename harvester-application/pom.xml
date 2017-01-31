@@ -5,7 +5,7 @@
 	<artifactId>harvester-application</artifactId>
 	<version>0.1</version>
 	<packaging>war</packaging>
-	<name>Harvester Application</name>
+	<name>Femme Harvester Application</name>
 
 	<properties>
 		<spring.version>4.3.2.RELEASE</spring.version>
@@ -194,17 +194,14 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
+			 <plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>${tomcat7-maven-plugin.version}</version>
 				<configuration>
 					<port>8082</port>
 					<path>/femme-harvester-application-devel</path>
-					<!--<contextFile>src/main/webapp/WEB-INF/web.xml</contextFile>-->
-					<!--<mode>context</mode>-->
 					<charset>UTF-8</charset>
-					<!--<warDirectory>target/${project.artifactId}-${project.version}</warDirectory>-->
 				</configuration>
 			</plugin>
 		</plugins>

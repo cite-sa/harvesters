@@ -15,7 +15,7 @@
 			http://www.springframework.org/schema/task
 	        http://www.springframework.org/schema/task/spring-task-4.3.xsd">
 
-	<context:property-placeholder location="classpath:WEB-INF/harvester.properties" />
+	<context:property-placeholder location="WEB-INF/harvester.properties" />
 
 	<bean id="wcsAdapterr" class="gr.cite.earthserver.wcs.adapter.WCSAdapter"
 		scope="prototype">

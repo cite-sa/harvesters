@@ -72,7 +72,7 @@ public class WCSHarvestable implements Harvestable {
 			collectionId = this.wcsAdapter.insertServer(this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
 
 			List<Future<String>> futures = new ArrayList<>();
-			ExecutorService executor = Executors.newFixedThreadPool(4);
+			ExecutorService executor = Executors.newFixedThreadPool(2);
 			
 			for (String coverageId : coverageIds) {
 				futures.add(executor.submit(new RetrieveAndStoreCoverageCallable(wcsRequestBuilder, this.wcsAdapter, collectionId, coverageId)));
