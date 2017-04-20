@@ -4,7 +4,7 @@
 	<groupId>gr.cite.harvester</groupId>
 	<artifactId>harvester-engine</artifactId>
 	<version>0.1</version>
-	<name>Harvester</name>
+	<name>Harvester Engine</name>
 
 	<properties>
 		<logback.version>1.1.7</logback.version>
@@ -31,15 +31,17 @@
 			<version>${logback.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>gr.cite.earthserver</groupId>
-			<artifactId>wcs-adapter</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
 			<version>${mongodb.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>gr.cite.earthserver</groupId>
+			<artifactId>wcs-adapter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
