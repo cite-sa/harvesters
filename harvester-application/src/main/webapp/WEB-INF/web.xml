@@ -24,11 +24,11 @@ http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
 		<init-param>
 			<param-name>jersey.config.server.provider.classnames</param-name>
-			<param-value>gr.cite.earthserver.harvester.application.CORSResponseFilter</param-value>
+			<param-value>gr.cite.harvester.application.CORSResponseFilter</param-value>
 		</init-param>
 		<init-param>
 			<param-name>javax.ws.rs.Application</param-name>
-			<param-value>gr.cite.earthserver.harvester.application.HarvesterApplication</param-value>
+			<param-value>gr.cite.harvester.application.HarvesterApplication</param-value>
 		</init-param>
 		<!-- <init-param>
 			<param-name>jersey.config.server.provider.packages</param-name>

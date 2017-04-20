@@ -24,7 +24,11 @@
 		</encoder>
     </appender>
 
-	<logger name="gr.cite.earthserver.harvester.application" level="INFO" additivity="false">
+	<logger name="org.mongodb.driver" level="INFO" additivity="false">
+		<appender-ref ref="STDOUT" />
+		<!-- <appender-ref ref="FILE" /> -->
+	</logger>
+	<logger name="gr.cite.earthserver.harvester.application" level="DEBUG" additivity="false">
 		<appender-ref ref="STDOUT" />
 		<!-- <appender-ref ref="FILE-AUDIT" /> -->
 	</logger>

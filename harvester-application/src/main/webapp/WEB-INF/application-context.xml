@@ -17,31 +17,29 @@
 
 	<context:property-placeholder location="WEB-INF/harvester.properties" />
 
-	<bean id="wcsAdapterr" class="gr.cite.earthserver.wcs.adapter.WCSAdapter"
-		scope="prototype">
+	<bean id="wcsAdapterr" class="gr.cite.earthserver.wcs.adapter.WCSAdapter" scope="prototype">
 		<constructor-arg value="${gr.cite.femme.earthserver.wcsAdapter.femme.url}" />
 	</bean>
 
-	<bean id="wcsHarvestable" class="gr.cite.earthserver.harvester.wcs.WCSHarvestable"
-		scope="request">
-		<property name="wcsAdapter" ref="wcsAdapterr"></property>
+	<bean id="wcsHarvestable" class="gr.cite.harvester.wcs.WCSHarvestable" scope="request">
+		<property name="wcsAdapter" ref="wcsAdapterr" />
 		<!-- <constructor-arg value="wcsAdapter"/> -->
 		<aop:scoped-proxy />
 	</bean>
 
 	<bean id="harvesterDatastore" name="harvesterDatastore"
-		class="gr.cite.earthserver.harvester.datastore.mongodb.HarvesterDatastoreMongo">
+		class="gr.cite.harvester.datastore.mongodb.HarvesterDatastoreMongo">
 		<constructor-arg value="${gr.cite.femme.earthserver.harvester.datastore.mongodb.host}" />
 		<constructor-arg value="${gr.cite.femme.earthserver.harvester.datastore.mongodb.name}" />
 		<constructor-arg value="${gr.cite.femme.earthserver.harvester.harvests.maxLoggedHarvestCycles}" />
 	</bean>
 
-	<bean id="harvester" class="gr.cite.earthserver.harvester.core.Harvester">
+	<bean id="harvester" class="gr.cite.harvester.core.Harvester">
 		<constructor-arg ref="harvesterDatastore" />
 		<!-- <constructor-arg ref="harvesterScheduler" /> -->
 	</bean>
 	
-	<bean id="harvesterTask" class="gr.cite.earthserver.harvester.core.HarvesterTask">
+	<bean id="harvesterTask" class="gr.cite.harvester.core.HarvesterTask">
 		<constructor-arg ref="harvesterDatastore" />
 		<constructor-arg ref="wcsAdapterr" />
 	</bean>
@@ -55,7 +53,7 @@
 
 
 	<bean id="harvesterResource"
-		class="gr.cite.earthserver.harvester.application.resources.HarvesterResource">
+		class="gr.cite.harvester.application.resources.HarvesterResource">
 		<constructor-arg ref="harvester" />
 		<property name="harvestable" ref="wcsHarvestable" />
 	</bean>
