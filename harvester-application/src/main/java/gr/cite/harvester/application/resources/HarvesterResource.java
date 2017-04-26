@@ -70,7 +70,7 @@ public class HarvesterResource {
 	@Path("harvests")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response unregister(Harvest harvest) {
+	public Response deregister(Harvest harvest) {
 		String id = harvester.unregister(harvest.getId());
 		return Response.ok(id).build();
 	}

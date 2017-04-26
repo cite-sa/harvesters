@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -23,7 +24,6 @@ import gr.cite.earthserver.wcs.utils.WCSParseUtils;
 import gr.cite.femme.client.FemmeDatastoreException;
 
 public class WCSHarvestable implements Harvestable {
-	
 	private static final Logger logger = LoggerFactory.getLogger(WCSHarvestable.class);
 
 	private HarvesterDatastore harvesterDatastore;
@@ -85,30 +85,27 @@ public class WCSHarvestable implements Harvestable {
 //				femmeClient.addToCollection(WCSFemmeMapper.fromCoverage(describeCoverage), collectionId);
 			}
 
-			HarvestCycle countElementsHarvestCycle = new HarvestCycle();
-			countElementsHarvestCycle.setStartTime(null);
+			HarvestCycle countElementsHarvestCycle = this.harvest.getCurrentHarvestCycle();
 
-			int harvestedElements = 0;
+			AtomicInteger harvestedElements = new AtomicInteger(0);
 			for(Future<String> future : futures) {
 				try {
 					String coverageId = future.get();
 					if (coverageId != null) {
-						countElementsHarvestCycle.setNewElements(countElementsHarvestCycle.getNewElements() + 1);
+						countElementsHarvestCycle.incrementNewElements();
 					} else {
-						countElementsHarvestCycle.setUpdatedElements(countElementsHarvestCycle.getNewElements() + 1);
+						countElementsHarvestCycle.incrementUpdatedElements();
 					}
 					logger.info("Coverage " + coverageId + " added to server " + collectionId);
 				} catch (InterruptedException | ExecutionException e) {
-					countElementsHarvestCycle.setFailedElements(countElementsHarvestCycle.getFailedElements() + 1);
+					countElementsHarvestCycle.incrementFailedElements();
 					logger.error(e.getMessage(), e);
 				}
-				countElementsHarvestCycle.setTotalElements(countElementsHarvestCycle.getTotalElements() + 1);
+				countElementsHarvestCycle.incrementTotalElements();
+				harvestedElements.incrementAndGet();
 
-				if (++harvestedElements == 50) {
-					this.harvest = this.harvesterDatastore.incrementHarvestedElementsCounters(harvest.getId(), countElementsHarvestCycle);
-					harvestedElements = 0;
-					countElementsHarvestCycle = new HarvestCycle();
-					countElementsHarvestCycle.setStartTime(null);
+				if (harvestedElements.compareAndSet(50, 0)) {
+					this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
 				}
 			}
 			this.harvest = this.harvesterDatastore.incrementHarvestedElementsCounters(harvest.getId(), countElementsHarvestCycle);

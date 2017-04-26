@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Harvester {
-
 	private static final Logger logger = LoggerFactory.getLogger(Harvester.class);
 
 	private HarvesterDatastore harvesterDatastore;
@@ -21,11 +20,11 @@ public class Harvester {
 		this.harvesterDatastore = harvesterDatastore;
 	}
 	
-	public String register(Harvestable harvestable) {
+	public synchronized String register(Harvestable harvestable) {
 		return harvesterDatastore.insertHarvest(harvestable.getHarvest());
 	}
 
-	public String unregister(String id) {
+	public synchronized String unregister(String id) {
 		return harvesterDatastore.deleteHarvest(id);
 	}
 	
@@ -40,5 +39,4 @@ public class Harvester {
 	public List<Harvest> getHarvests(Integer limit, Integer offset) {
 		return harvesterDatastore.getHarvests(limit, offset);
 	}
-	
 }

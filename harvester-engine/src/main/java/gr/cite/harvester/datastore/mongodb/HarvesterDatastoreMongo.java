@@ -18,11 +18,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 
 public class HarvesterDatastoreMongo implements HarvesterDatastore {
-	
-	private HarvesterDatastoreMongoClient mongoClient;
-	
-	private MongoCollection<Harvest> harvestCollection;
 
+	private HarvesterDatastoreMongoClient mongoClient;
+	private MongoCollection<Harvest> harvestCollection;
 	private Integer maxLoggedHarvestCycles;
 
 	public HarvesterDatastoreMongo(String dbHost, String dbName, Integer maxLoggedHarvestCycles) {
@@ -72,28 +70,26 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 
 	@Override
 	public Harvest updateHarvestStatus(String harvestId, Status status, String errorMessage) {
-
 		Harvest harvest = null;
-		
+
 		if(Status.RUNNING.equals(status)) {
 			harvest = getHarvestById(harvestId);
-
 			harvest.setStatus(status);
 
 			if (harvest.getPreviousHarvestCycles() == null) {
 				harvest.setPreviousHarvestCycles(new ArrayList<>());
 			}
+
 			List<HarvestCycle> previousHarvestCycles = harvest.getPreviousHarvestCycles();
 			if (previousHarvestCycles.size() == maxLoggedHarvestCycles) {
-				previousHarvestCycles.stream().sorted(Comparator.comparing(HarvestCycle::getStartTime)).findFirst().ifPresent(oldestHarvestCycle -> {
-					previousHarvestCycles.removeIf(harvestCycle -> harvestCycle.getId().equals(oldestHarvestCycle.getId()));
-				});
+				previousHarvestCycles.stream().sorted(Comparator.comparing(HarvestCycle::getStartTime)).findFirst()
+						.ifPresent(oldestHarvestCycle -> previousHarvestCycles.removeIf(harvestCycle -> harvestCycle.getId().equals(oldestHarvestCycle.getId())));
 
 			}
+
 			if (harvest.getCurrentHarvestCycle() != null) {
 				previousHarvestCycles.add(harvest.getCurrentHarvestCycle());
 			}
-
 			harvest.setCurrentHarvestCycle(new HarvestCycle());
 		} else if (Status.STOPPED.equals(status) || Status.PENDING.equals(status)) {
 			harvest = new Harvest();
@@ -103,7 +99,9 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 			if (errorMessage == null) {
 				throw new IllegalArgumentException("Error message can not be null");
 			}
+
 			harvest = getHarvestById(harvestId);
+
 			harvest.setEndpoint(null);
 			harvest.setEndpointAlias(null);
 			harvest.setSchedule(null);
@@ -112,7 +110,6 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 			currentHarvestCycle.setEndTime(Instant.now());
 			currentHarvestCycle.setErrorMessage(errorMessage);
 			harvest.setPreviousHarvestCycles(null);
-
 		} else if (Status.FINISHED.equals(status)) {
 			harvest = getHarvestById(harvestId);
 
@@ -171,34 +168,24 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 		FindIterable<Harvest> harvestIterable = this.harvestCollection.find(
 				Filters.or(Filters.eq("status", Status.PENDING.getStatusCode()), Filters.eq("status", Status.FINISHED.getStatusCode()), Filters.eq("status", Status.ERROR.getStatusCode()))
 			);
-		
-		MongoCursor<Harvest> harvestCursor = null;
-		
-		try {				
-			harvestCursor = harvestIterable.iterator();
 
+		try (MongoCursor<Harvest> harvestCursor = harvestIterable.iterator()) {
 			while (harvestCursor.hasNext()) {
-				
 				Harvest harvest = harvestCursor.next();
-				
+
 				if (Status.PENDING.equals(harvest.getStatus())) {
 					harvests.add(harvest);
 				} else if (Status.FINISHED.equals(harvest.getStatus()) || Status.ERROR.equals(harvest.getStatus())) {
-					
-					Duration period = Duration.of(harvest.getSchedule().getPeriod(), harvest.getSchedule().getPeriodType());
+					Duration period = Duration.of(harvest.getSchedule().getPeriod(), harvest.getSchedule()
+							.getPeriodType());
 					Instant endtimeOfHarvest = harvest.getCurrentHarvestCycle().getEndTime();
 					Instant now = Instant.now();
 					Duration timePassed = Duration.between(endtimeOfHarvest, now);
-					
+
 					if (timePassed.compareTo(period) > 0) {
 						harvests.add(harvest);
 					}
 				}
-				
-			}
-		} finally {
-			if (harvestCursor != null) {
-				harvestCursor.close();
 			}
 		}
 		
@@ -218,6 +205,19 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 								.append("currentHarvestCycle.newElements",harvestCycle.getNewElements())
 								.append("currentHarvestCycle.updatedElements", harvestCycle.getUpdatedElements())
 								.append("currentHarvestCycle.failedElements", harvestCycle.getFailedElements())),
+				new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+		);
+	}
+
+	@Override
+	public Harvest updateHarvestedCyCle(String harvestId, HarvestCycle harvestCycle) {
+		Objects.requireNonNull(harvestId, "Harvest ID can not be null");
+		Objects.requireNonNull(harvestCycle, "Harvest cycle can not be null");
+
+		//List<Bson> updates = incrementValuePerField.entrySet().stream().map(fieldAndValue -> Updates.inc(fieldAndValue.getKey(), fieldAndValue.getValue())).collect(Collectors.toList());
+		return harvestCollection.findOneAndUpdate(
+				Filters.eq("_id", new ObjectId(harvestId)),
+				Updates.set("currentHarvestCycle", harvestCycle),
 				new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
 		);
 	}

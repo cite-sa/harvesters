@@ -34,6 +34,8 @@ public interface HarvesterDatastore {
 
 	public Harvest incrementHarvestedElementsCounters(String harvestId, HarvestCycle harvestCycle);
 
+	public Harvest updateHarvestedCyCle(String harvestId, HarvestCycle harvestCycle);
+
 	/*public Harvest incrementHarvestedElementsCounters(String id, Map<String, Integer> incrementValuePerField);*/
 
 }

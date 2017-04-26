@@ -1,32 +1,26 @@
 package gr.cite.harvester.datastore.model;
 
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class HarvestCycle {
 
     private String id;
-
     private Instant startTime;
-
     private Instant endTime;
-
-    private Long totalElements;
-
-    private Long newElements;
-
-    private Long updatedElements;
-
-    private Long failedElements;
-
+    private AtomicLong totalElements;
+    private AtomicLong newElements;
+    private AtomicLong updatedElements;
+    private AtomicLong failedElements;
     private String errorMessage;
 
     public HarvestCycle() {
         this.startTime = Instant.now();
         this.endTime = null;
-        this.totalElements = 0L;
-        this.newElements = 0L;
-        this.updatedElements = 0L;
-        this.failedElements = 0L;
+        this.totalElements = new AtomicLong(0);
+        this.newElements = new AtomicLong(0);
+        this.updatedElements = new AtomicLong(0);
+        this.failedElements = new AtomicLong(0);
         this.errorMessage = null;
     }
 
@@ -54,36 +48,37 @@ public class HarvestCycle {
         this.endTime = endTime;
     }
 
-    public Long getTotalElements() {
-        return totalElements;
+    public synchronized Long getTotalElements() {
+        return totalElements.longValue();
     }
 
-    public void setTotalElements(Long totalElements) {
-        this.totalElements = totalElements;
+    public synchronized void setTotalElements(Long totalElements) {
+        this.totalElements = new AtomicLong(totalElements);
     }
 
-    public Long getNewElements() {
-        return newElements;
+
+    public synchronized Long getNewElements() {
+        return newElements.longValue();
     }
 
-    public void setNewElements(Long newElements) {
-        this.newElements = newElements;
+    public synchronized void setNewElements(Long newElements) {
+        this.newElements = new AtomicLong(newElements);
     }
 
-    public Long getUpdatedElements() {
-        return updatedElements;
+    public synchronized Long getUpdatedElements() {
+        return updatedElements.longValue();
     }
 
-    public void setUpdatedElements(Long updatedElements) {
-        this.updatedElements = updatedElements;
+    public synchronized void setUpdatedElements(Long updatedElements) {
+        this.updatedElements = new AtomicLong(updatedElements);
     }
 
-    public Long getFailedElements() {
-        return failedElements;
+    public synchronized Long getFailedElements() {
+        return failedElements.longValue();
     }
 
-    public void setFailedElements(Long failedElements) {
-        this.failedElements = failedElements;
+    public synchronized void setFailedElements(Long failedElements) {
+        this.failedElements = new AtomicLong(failedElements);
     }
 
     public String getErrorMessage() {
@@ -94,4 +89,23 @@ public class HarvestCycle {
         this.errorMessage = errorMessage;
     }
 
+    public synchronized Long incrementTotalElements() {
+        return this.totalElements.incrementAndGet();
+
+    }
+
+    public synchronized Long incrementNewElements() {
+        return this.newElements.incrementAndGet();
+
+    }
+
+    public synchronized Long incrementUpdatedElements() {
+        return this.updatedElements.incrementAndGet();
+
+    }
+
+    public synchronized Long incrementFailedElements() {
+        return this.failedElements.incrementAndGet();
+
+    }
 }

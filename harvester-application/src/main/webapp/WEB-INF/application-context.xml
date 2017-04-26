@@ -36,7 +36,6 @@
 
 	<bean id="harvester" class="gr.cite.harvester.core.Harvester">
 		<constructor-arg ref="harvesterDatastore" />
-		<!-- <constructor-arg ref="harvesterScheduler" /> -->
 	</bean>
 	
 	<bean id="harvesterTask" class="gr.cite.harvester.core.HarvesterTask">
@@ -44,21 +43,18 @@
 		<constructor-arg ref="wcsAdapterr" />
 	</bean>
 
-	<task:scheduled-tasks scheduler="harvestScheduler">
-	    <task:scheduled ref="harvesterTask" method="run" fixed-rate="${gr.cite.femme.earthserver.harvester.cycle.milliseconds}" />
-	</task:scheduled-tasks>
-
-	<task:annotation-driven scheduler="harvestScheduler" />
-	<task:scheduler id="harvestScheduler" pool-size="1" />
-
-
 	<bean id="harvesterResource"
 		class="gr.cite.harvester.application.resources.HarvesterResource">
 		<constructor-arg ref="harvester" />
 		<property name="harvestable" ref="wcsHarvestable" />
 	</bean>
 
+	<task:scheduled-tasks scheduler="harvestScheduler">
+		<task:scheduled ref="harvesterTask" method="run" fixed-rate="${gr.cite.femme.earthserver.harvester.cycle.milliseconds}" />
+	</task:scheduled-tasks>
 
+	<task:annotation-driven scheduler="harvestScheduler" />
+	<task:scheduler id="harvestScheduler" pool-size="1" />
 
 	<context:annotation-config />
 	<context:component-scan base-package="gr.cite.earthserver.harvester.application" />

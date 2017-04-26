@@ -18,11 +18,9 @@ import gr.cite.earthserver.wcs.adapter.api.WCSAdapterAPI;
 import gr.cite.femme.client.FemmeDatastoreException;
 
 public class HarvesterTask implements Runnable {
-
 	private final static Logger logger = LoggerFactory.getLogger(HarvesterTask.class);
 
 	private HarvesterDatastore harvesterDatastore;
-	
 	private WCSAdapterAPI wcsAdapter;
 
 	@Inject
@@ -44,13 +42,13 @@ public class HarvesterTask implements Runnable {
 		ExecutorService executor = Executors.newFixedThreadPool(5);
 
 		for (Harvest harvest : harvests) {
-			
+
 			WCSHarvestable harvestable = new WCSHarvestable();
 			harvestable.setHarvest(harvest);
 			harvestable.setWcsAdapter(wcsAdapter);
 			harvestable.setHarvesterDatastore(harvesterDatastore);
 			executor.submit(() -> {
-                harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.RUNNING);
+                harvestable.setHarvest(this.harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.RUNNING));
                 try {
 
                     //logger.debug("Starting harvest of " + harvestable.getHarvest().getEndpoint());
@@ -66,8 +64,7 @@ public class HarvesterTask implements Runnable {
 					logger.info("----------------------------------------------------------");
 
                 } catch (FemmeDatastoreException e) {
-					logger.error("Harvest for endpoint " + harvestable.getHarvest().getEndpoint() + " failed with error message " + e.getMessage(),e);
-                    logger.error(e.getMessage(),e);
+					logger.error("Harvest for endpoint " + harvestable.getHarvest().getEndpoint() + " failed", e);
                     harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.ERROR, e.getMessage());
                     return;
                 }
