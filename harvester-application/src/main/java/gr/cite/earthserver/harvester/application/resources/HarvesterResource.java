@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -160,6 +161,10 @@ public class HarvesterResource {
 					harvest.getCurrentHarvestCycle() == null ? ""
 							: harvest.getCurrentHarvestCycle().getUpdatedElements() == null ? ""
 									: harvest.getCurrentHarvestCycle().getUpdatedElements().toString());
+			rowData.put("PreviousHarvests",
+					harvest.getPreviousHarvestCycles() == null ? ""
+						:harvest.getPreviousHarvestCycles().stream().collect(Collectors.counting()).toString());
+
 			// rowData.put("EndTime",
 			// harvest.getCurrentHarvestCycle().getEndTime() == null ? "" :
 			// harvest.getCurrentHarvestCycle().getEndTime().toString());
