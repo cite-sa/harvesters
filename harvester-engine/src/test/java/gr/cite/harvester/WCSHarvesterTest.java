@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import gr.cite.harvester.core.Harvester;
 import gr.cite.earthserver.wcs.core.WCSRequestException;
 import gr.cite.earthserver.wcs.utils.ParseException;
-import gr.cite.femme.client.FemmeDatastoreException;
+import gr.cite.femme.client.FemmeException;
 
 public class WCSHarvesterTest {
 
@@ -63,7 +63,7 @@ public class WCSHarvesterTest {
 	}
 
 //	@Test
-	public void harvest() throws WCSRequestException, ParseException, FemmeDatastoreException {
+	public void harvest() throws WCSRequestException, ParseException, FemmeException {
 
 //		WCSAdapter wcsAdapter = new WCSAdapter("http://es-devel1.local.cite.gr:8080/femme-application");
 //		WCSAdapter wcsAdapter = new WCSAdapter("http://localhost:8081/femme-application");
@@ -72,7 +72,7 @@ public class WCSHarvesterTest {
 
 		harvest.setEndpoint("http://access.planetserver.eu:8080/rasdaman/ows");
 		harvest.setEndpointAlias("PlanetServer");
-		Schedule schedule = new Schedule(new Long(96), ChronoUnit.HOURS);
+		Schedule schedule = new Schedule(96L, ChronoUnit.HOURS);
 		harvest.setSchedule(schedule);
 		
 		/*harvest.setEndpoint("http://incubator.ecmwf.int/2e/rasdaman/ows");*/

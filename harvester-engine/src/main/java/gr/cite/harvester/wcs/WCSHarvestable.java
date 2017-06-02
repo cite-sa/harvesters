@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.StampedLock;
 
 import javax.inject.Inject;
 
@@ -21,7 +23,7 @@ import gr.cite.earthserver.wcs.adapter.api.WCSAdapterAPI;
 import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
 import gr.cite.earthserver.wcs.core.WCSResponse;
 import gr.cite.earthserver.wcs.utils.WCSParseUtils;
-import gr.cite.femme.client.FemmeDatastoreException;
+import gr.cite.femme.client.FemmeException;
 
 public class WCSHarvestable implements Harvestable {
 	private static final Logger logger = LoggerFactory.getLogger(WCSHarvestable.class);
@@ -59,9 +61,10 @@ public class WCSHarvestable implements Harvestable {
 	}
 	
 	@Override
-	public Harvest harvest() throws FemmeDatastoreException {
+	public Harvest harvest() throws FemmeException {
 		String importId;
 		String collectionId;
+		ExecutorService executor = Executors.newFixedThreadPool(3);
 		
 		try {
 			WCSRequestBuilder wcsRequestBuilder = new WCSRequestBuilder().endpoint(this.harvest.getEndpoint());
@@ -70,17 +73,15 @@ public class WCSHarvestable implements Harvestable {
 
 			importId = this.wcsAdapter.beginImport(this.harvest.getEndpoint());
 
-
 			//collectionId = this.wcsAdapter.insertServer(this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
 			collectionId = this.wcsAdapter.importServer(importId, this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
 
 			List<Future<String>> futures = new ArrayList<>();
-			ExecutorService executor = Executors.newFixedThreadPool(2);
 
 			logger.info("Total coverages to be inserted: " + coverageIds.size());
 			
 			for (String coverageId : coverageIds) {
-				futures.add(executor.submit(new RetrieveAndStoreCoverageCallable(wcsRequestBuilder, this.wcsAdapter, importId, collectionId, coverageId)));
+				futures.add(executor.submit(new RetrieveAndStoreCoverageCallable(wcsRequestBuilder, this.wcsAdapter, importId, /*collectionId, */coverageId)));
 //				WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
 //				femmeClient.addToCollection(WCSFemmeMapper.fromCoverage(describeCoverage), collectionId);
 			}
@@ -88,9 +89,13 @@ public class WCSHarvestable implements Harvestable {
 			HarvestCycle countElementsHarvestCycle = this.harvest.getCurrentHarvestCycle();
 
 			AtomicInteger harvestedElements = new AtomicInteger(0);
+			StampedLock lock = new StampedLock();
 			for(Future<String> future : futures) {
+
+				long stamp = lock.readLock();
 				try {
 					String coverageId = future.get();
+
 					if (coverageId != null) {
 						countElementsHarvestCycle.incrementNewElements();
 					} else {
@@ -102,19 +107,23 @@ public class WCSHarvestable implements Harvestable {
 					logger.error(e.getMessage(), e);
 				}
 				countElementsHarvestCycle.incrementTotalElements();
-				harvestedElements.incrementAndGet();
+				lock.unlock(stamp);
 
+				harvestedElements.incrementAndGet();
 				if (harvestedElements.compareAndSet(50, 0)) {
+					long writeStamp = lock.writeLock();
 					this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
+					lock.unlock(writeStamp);
 				}
 			}
+
 			this.harvest = this.harvesterDatastore.incrementHarvestedElementsCounters(harvest.getId(), countElementsHarvestCycle);
 			this.wcsAdapter.endImport(importId);
-			executor.shutdown();
-
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			throw new FemmeDatastoreException(e.getMessage(), e);
+			throw new FemmeException(e.getMessage(), e);
+		} finally {
+			executor.shutdown();
 		}
 		/*} catch (WCSRequestException e) {
 			logger.error(e.getMessage(), e);

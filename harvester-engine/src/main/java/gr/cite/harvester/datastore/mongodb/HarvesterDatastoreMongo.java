@@ -164,7 +164,7 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	public List<Harvest> getHarvestsToBeHarvested() {
 		
 		List <Harvest> harvests = new ArrayList<>();
-		
+
 		FindIterable<Harvest> harvestIterable = this.harvestCollection.find(
 				Filters.or(Filters.eq("status", Status.PENDING.getStatusCode()), Filters.eq("status", Status.FINISHED.getStatusCode()), Filters.eq("status", Status.ERROR.getStatusCode()))
 			);
@@ -178,9 +178,9 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 				} else if (Status.FINISHED.equals(harvest.getStatus()) || Status.ERROR.equals(harvest.getStatus())) {
 					Duration period = Duration.of(harvest.getSchedule().getPeriod(), harvest.getSchedule()
 							.getPeriodType());
-					Instant endtimeOfHarvest = harvest.getCurrentHarvestCycle().getEndTime();
+					Instant harvestEndTime = harvest.getCurrentHarvestCycle().getEndTime();
 					Instant now = Instant.now();
-					Duration timePassed = Duration.between(endtimeOfHarvest, now);
+					Duration timePassed = Duration.between(harvestEndTime, now);
 
 					if (timePassed.compareTo(period) > 0) {
 						harvests.add(harvest);

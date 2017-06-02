@@ -10,7 +10,7 @@ import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
 import gr.cite.earthserver.wcs.core.WCSRequestException;
 import gr.cite.earthserver.wcs.core.WCSResponse;
 import gr.cite.earthserver.wcs.utils.ParseException;
-import gr.cite.femme.client.FemmeDatastoreException;
+import gr.cite.femme.client.FemmeException;
 
 public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 	
@@ -19,21 +19,21 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 	private WCSRequestBuilder wcsRequestBuilder;
 	private WCSAdapterAPI adapter;
 	private String importId;
-	private String collectionId;
+	//private String collectionId;
 	private String coverageId;
 	
-	public RetrieveAndStoreCoverageCallable(WCSRequestBuilder wcsRequestBuilder, WCSAdapterAPI adapter, String importId, String collectionId, String coverageId) {
+	public RetrieveAndStoreCoverageCallable(WCSRequestBuilder wcsRequestBuilder, WCSAdapterAPI adapter, String importId, /*String collectionId, */String coverageId) {
 		this.wcsRequestBuilder = wcsRequestBuilder;
 		this.adapter = adapter;
 		this.importId = importId;
-		this.collectionId = collectionId;
+		//this.collectionId = collectionId;
 		this.coverageId = coverageId;
 	}
 		
 	@Override
-	public String call() throws FemmeDatastoreException, WCSRequestException, ParseException {
-		WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
-		return this.adapter.importCoverage(this.importId, describeCoverage);
+	public String call() throws FemmeException, WCSRequestException, ParseException {
+		//WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
+		return this.adapter.importCoverage(this.importId, wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get());
 
 		/*if (collectionId != null) {
 			logger.info("CoverageId to be added: " + coverageId);

@@ -89,23 +89,19 @@ public class HarvestCycle {
         this.errorMessage = errorMessage;
     }
 
-    public synchronized Long incrementTotalElements() {
+    public Long incrementTotalElements() {
         return this.totalElements.incrementAndGet();
-
     }
 
-    public synchronized Long incrementNewElements() {
+    public Long incrementNewElements() {
         return this.newElements.incrementAndGet();
-
     }
 
-    public synchronized Long incrementUpdatedElements() {
+    public Long incrementUpdatedElements() {
         return this.updatedElements.incrementAndGet();
-
     }
 
-    public synchronized Long incrementFailedElements() {
+    public Long incrementFailedElements() {
         return this.failedElements.incrementAndGet();
-
     }
 }

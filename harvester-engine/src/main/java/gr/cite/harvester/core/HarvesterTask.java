@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gr.cite.earthserver.wcs.adapter.api.WCSAdapterAPI;
-import gr.cite.femme.client.FemmeDatastoreException;
+import gr.cite.femme.client.FemmeException;
 
 public class HarvesterTask implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(HarvesterTask.class);
@@ -48,7 +48,7 @@ public class HarvesterTask implements Runnable {
 			harvestable.setWcsAdapter(wcsAdapter);
 			harvestable.setHarvesterDatastore(harvesterDatastore);
 			executor.submit(() -> {
-                harvestable.setHarvest(this.harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.RUNNING));
+                harvestable.setHarvest(harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.RUNNING));
                 try {
 
                     //logger.debug("Starting harvest of " + harvestable.getHarvest().getEndpoint());
@@ -63,15 +63,14 @@ public class HarvesterTask implements Runnable {
 					logger.info("Failed elements: " + updatedHarvest.getCurrentHarvestCycle().getFailedElements());
 					logger.info("----------------------------------------------------------");
 
-                } catch (FemmeDatastoreException e) {
-					logger.error("Harvest for endpoint " + harvestable.getHarvest().getEndpoint() + " failed", e);
+					harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.FINISHED);
+                } catch (FemmeException e) {
                     harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.ERROR, e.getMessage());
-                    return;
+					logger.error("Harvest for endpoint " + harvestable.getHarvest().getEndpoint() + " failed", e);
                 }
-
-                harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.FINISHED);
             });
 		}
+
 		executor.shutdown();
 	}
 }
