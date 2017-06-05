@@ -53,7 +53,7 @@ $(document).ready(function () {
 
 	var inlineEditor = $('<div id="' + $.ui.CiteBaseControl.generateControlId() + '" class="inline-editor" style="display: none;">');
 	inlineEditor.HarvesterInlineEditor({
-		autoInitialize: true
+		autoInitialize: true,
 	});
 
 	gridControl.parent().append(inlineEditor);
@@ -130,6 +130,7 @@ $(document).ready(function () {
 					requestData : item,
 					onSuccess : function (data) {
 						console.log(data);
+						item.status = data.status;
 						item.endpoint = data.endpoint;
 						item.endpointAlias = data.endpointAlias;
 						item.period = data.schedule.period;
@@ -138,11 +139,11 @@ $(document).ready(function () {
 						item.newElements = 	data.currentHarvestCycle.newElements;
 						item.updatedElements = data.currentHarvestCycle.updatedElements;
 						item.failedElements = data.currentHarvestCycle.failedElements;
-						if (data.currentHarvestCycle.errorMessage = "null") {
-							item.errorMessage = 'No error';
+						if (item.status == "ERROR"){
+							item.errorMessage = data.currentHarvestCycle.errorMessage;
 						}
 						else {
-							item.errorMessage = data.currentHarvestCycle.errorMessage;
+							item.errorMessage = 'No error';
 						}
 						item.previousHarvestCycles = [];
 						if (data.previousHarvestCycles != undefined ){

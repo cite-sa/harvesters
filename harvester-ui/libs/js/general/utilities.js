@@ -99,10 +99,10 @@
 			var columnDef = Earthserver.Client.Utilities.createColumnDefinition("UpdatedElements", "Updated Elements", false, false);
 			columnDefs.push(columnDef);
 		}
-		// {
-		// 	var columnDef = Earthserver.Client.Utilities.createColumnDefinition("Previous Harvest Cycles", "Previous Harvest Cycles", false, false);
-		// 	columnDefs.push(columnDef);
-		// }
+		{
+			var columnDef = Earthserver.Client.Utilities.createColumnDefinition("PreviousHarvestCycles", "Previous Harvest Cycles", false, false);
+			columnDefs.push(columnDef);
+		}
 				
 		result.columnDefinitions = columnDefs;
 		result.gridName = 'Harvests';
@@ -164,7 +164,7 @@
 		$.each(result.Rows, function(index, row) {
 		    row.Data.StartTime = row.Data.StartTime != "" ? new Date(row.Data.StartTime) : "";
             row.Data.EndTime = row.Data.EndTime != "" ? new Date(row.Data.EndTime) : "";
-			row.Data.PreviousHarvests = row.Data.PreviousHarvests != "" ? row.Data.PreviousHarvests : "There is no previous harvest";
+			row.Data.PreviousHarvestCycles = row.Data.PreviousHarvests != "" ? row.Data.PreviousHarvests : "There is no previous harvest";
 		});
 		//Extract extra information from context object.
 		var context = result["Context"];
