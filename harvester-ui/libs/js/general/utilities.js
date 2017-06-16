@@ -164,7 +164,7 @@
 		$.each(result.Rows, function(index, row) {
 		    row.Data.StartTime = row.Data.StartTime != "" ? new Date(row.Data.StartTime) : "";
             row.Data.EndTime = row.Data.EndTime != "" ? new Date(row.Data.EndTime) : "";
-			row.Data.PreviousHarvestCycles = row.Data.PreviousHarvests != "" ? row.Data.PreviousHarvests : "There is no previous harvest";
+			row.Data.PreviousHarvestCycles = row.Data.PreviousHarvests != "" ? row.Data.PreviousHarvests : "There are no previous harvests";
 		});
 		//Extract extra information from context object.
 		var context = result["Context"];

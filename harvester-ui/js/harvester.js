@@ -130,6 +130,7 @@ $(document).ready(function () {
 					requestData : item,
 					onSuccess : function (data) {
 						console.log(data);
+						isNew = setModeAsEdit();
 						item.status = data.status;
 						item.endpoint = data.endpoint;
 						item.endpointAlias = data.endpointAlias;
@@ -203,44 +204,20 @@ $(document).ready(function () {
 });
 
 function bindEvents(){
-	var input = $( ":button" ).addClass( "marked" );
-	var isNew = new Boolean();
-	initializeMode(isNew);
-	setModeAsNew(isNew);
-	// cancelNewMode()
-}
-
-function initializeMode(isNew){
-	isNew = Boolean(false);
-	console.log(isNew);
-	return isNew;
+	var isNew = false;
+	isNew = setModeAsNew(isNew);
 }
 
 function setModeAsNew(isNew){
-	$(".marked").on('click', function (e) {
-		isNew = Boolean("true");
+	$(".btn.btn-sm.btn-default").on('click', function (e) {
+		isNew = true;
 		console.log(isNew);
     });
 	return isNew;
 }
 
-function cancelNewMode(){
-	// $("#cancel").on('click', function (e) {
-	// 	isNew = Boolean("false");
-	// 	console.log(isNew);
-    // });
-
-	// $("button #cancel .btn btn-default").on('click', function (e) {
-	// 	alert("fadsfasdfa");
-    // });
-
-	// $( "[name='cancel ']" ).click(function() {
-  	// 	alert("fadsfasdfa");
-	// });
-
-	// $("#label9").find("#cancel").click(function () {
-    //     alert("hi there");
-    //     return false;
-	// });
-	// return isNew;
+function setModeAsEdit(){
+	isNew = false;
+	console.log(isNew);
+	return isNew;
 }
