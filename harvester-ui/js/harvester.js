@@ -1,9 +1,10 @@
 $(document).ready(function () {
-	// var rootUtl = "http://earthserver-devel.vhosts.cite.gr/harvester-application/harvester/";
-	var rootUtl = "http://localhost:8082/femme-harvester-application-devel/harvester/";
-	//var rootUtl = "http://localhost:8080/harvester-application/harvester/";
-	var harvestsUrl = rootUtl + 'harvests';
-	var retrieveHarvestsUrl = rootUtl + 'getHarvestsUI';
+	// var rootUrl = "http://earthserver-devel.vhosts.cite.gr/harvester-application/harvester/";
+	var rootUrl = "http://localhost:8082/femme-harvester-application-devel/harvester/";
+	//var rootUrl = "http://localhost:8080/harvester-application/harvester/";
+	var harvestsUrl = rootUrl + 'harvests';
+	var retrieveHarvestsUrl = rootUrl + 'getHarvestsUI';
+	var editHarvestsUrl = rootUrl + 'editHarvests';
 
 	function StartItemHarvest(rowID, data1, data2, data3) {
 		var rowData = gridControl.CiteLiveGrid('getRowData', rowID);
@@ -130,7 +131,7 @@ $(document).ready(function () {
 					requestData : item,
 					onSuccess : function (data) {
 						console.log(data);
-						isNew = setModeAsEdit();
+						isNew = modeManager.setModeAsEdit();
 						item.status = data.status;
 						item.endpoint = data.endpoint;
 						item.endpointAlias = data.endpointAlias;
@@ -199,25 +200,42 @@ $(document).ready(function () {
 
 	gridControl.CiteLiveGrid('refresh');
 
-	bindEvents();
+	modeManager.modeInit();
 	
 });
 
-function bindEvents(){
-	var isNew = false;
-	isNew = setModeAsNew(isNew);
-}
+var modeManager = {
 
-function setModeAsNew(isNew){
-	$(".btn.btn-sm.btn-default").on('click', function (e) {
-		isNew = true;
+    modeInit: function() {
+		var isNew = false;
+		isNew = this.setModeAsNew(isNew);
+    },
+
+    setModeAsNew: function(isNew) {
+		$(".btn.btn-sm.btn-default").on('click', function (e) {
+			isNew = true;
+			console.log(isNew);
+			modeManager.newModeMessage();
+    	});
+		return isNew;
+    },
+
+	setModeAsEdit: function(){
+		isNew = false;
 		console.log(isNew);
-    });
-	return isNew;
-}
+		this.editModeMessage();
+		return isNew;
+	},
 
-function setModeAsEdit(){
-	isNew = false;
-	console.log(isNew);
-	return isNew;
-}
+	editModeMessage: function(){
+		console.log("=========");
+		console.log("EDIT MODE");
+		console.log("=========");
+	},
+
+	newModeMessage: function(){
+		console.log("=========");
+		console.log("NEW MODE");
+		console.log("=========");
+	}
+};
