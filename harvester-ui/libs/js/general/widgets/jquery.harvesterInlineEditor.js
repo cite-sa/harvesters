@@ -371,10 +371,8 @@
 			result.endpoint = this.sveEndpoint.CiteStringValueEditor('getValue');
 			result.endpointAlias = this.sveEndpointAlias.CiteStringValueEditor('getValue');
 			result.period = this.svePeriod.CiteStringValueEditor('getValue');
-
 			var values = this.asgPeriodType.CiteAutoSuggest('getSelectedValues');
 			result.periodType = (values.length == 0) ? '' : values[0];
-
 			result.totalElements = this.sveTotal.CiteStringReadOnlyValueEditor('getValue');
 			result.newElements = this.sveNew.CiteStringReadOnlyValueEditor('getValue');
 			result.updatedElements = this.sveUpdate.CiteStringReadOnlyValueEditor('getValue');
@@ -406,8 +404,8 @@
 		
 		setCurrentDisplayModeAndApply: function (displayMode) {
 			this.setCurrentDisplayMode(displayMode);
-			// if (this.hasInitialized())
-			// 	this.applyViewMode();
+			if (this.hasInitialized())
+				this.applyViewMode();
 		},
 
 		applyViewMode: function () {
@@ -415,13 +413,12 @@
 			if (this.sveEndpoint) this.sveEndpoint.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
 			if (this.sveEndpointAlias) this.sveEndpointAlias.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
 			if (this.svePeriod) this.svePeriod.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
-
-			if (this.sveTotal) this.sveTotal.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
-			if (this.sveNew) this.sveNew.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
-			if (this.sveUpdate) this.sveUpdate.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
-			if (this.sveFail) this.sveFail.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
-			if (this.sveErrMsg) this.sveErrMsg.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
-			if (this.svePreviousHarvests) this.svePreviousHarvests('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
+			if (this.sveTotal) this.sveTotal.CiteStringReadOnlyValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
+			if (this.sveNew) this.sveNew.CiteStringReadOnlyValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
+			if (this.sveUpdate) this.sveUpdate.CiteStringReadOnlyValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
+			if (this.sveFail) this.sveFail.CiteStringReadOnlyValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
+			if (this.sveErrMsg) this.sveErrMsg.CiteStringReadOnlyValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
+			if (this.svePreviousHarvests) this.svePreviousHarvests.CiteStringReadOnlyValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
 		}
 	})
 }(jQuery));

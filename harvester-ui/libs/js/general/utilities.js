@@ -162,9 +162,10 @@
 		var result = JSON.parse(JSON.stringify(serverResponse)); // clone object
 		console.log(serverResponse);
 		$.each(result.Rows, function(index, row) {
-		    row.Data.StartTime = row.Data.StartTime != "" ? new Date(row.Data.StartTime) : "";
-            row.Data.EndTime = row.Data.EndTime != "" ? new Date(row.Data.EndTime) : "";
-			row.Data.PreviousHarvestCycles = row.Data.PreviousHarvests != "" ? row.Data.PreviousHarvests : "There is no previous harvest";
+		    row.Data.StartTime = row.Data.StartTime != "" ? new Date(row.Data.StartTime) : "No Time defined yet";
+            row.Data.EndTime = row.Data.EndTime != "" ? new Date(row.Data.EndTime) : "No Time defined yet";
+			var temp = row.Data.PreviousHarvests != "" ? row.Data.PreviousHarvests : "0";
+			row.Data.PreviousHarvestCycles = temp + " previous harvests";
 		});
 		//Extract extra information from context object.
 		var context = result["Context"];

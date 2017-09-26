@@ -900,7 +900,8 @@
 		DateFrame: 9,
 		TimeFrame: 10,
 		DateTimeFrame: 11,
-		Array: 12
+		Array: 12,
+		ReadOnlyString : 13
 	};
 
 	$.ui.CiteTypedValueEditor.TextBoxMode = {
