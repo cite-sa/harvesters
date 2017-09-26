@@ -163,7 +163,7 @@ public class HarvesterResource {
 									: harvest.getCurrentHarvestCycle().getUpdatedElements().toString());
 			rowData.put("PreviousHarvests",
 					harvest.getPreviousHarvestCycles() == null ? ""
-						:harvest.getPreviousHarvestCycles().stream().collect(Collectors.counting()).toString());
+						: Integer.toString(harvest.getPreviousHarvestCycles().size()));
 
 			// rowData.put("EndTime",
 			// harvest.getCurrentHarvestCycle().getEndTime() == null ? "" :

@@ -64,14 +64,14 @@ public class WCSHarvestable implements Harvestable {
 	public Harvest harvest() throws FemmeException {
 		String importId;
 		String collectionId;
-		ExecutorService executor = Executors.newFixedThreadPool(3);
+		ExecutorService executor = Executors.newFixedThreadPool(15);
 		
 		try {
 			WCSRequestBuilder wcsRequestBuilder = new WCSRequestBuilder().endpoint(this.harvest.getEndpoint());
 			WCSResponse getCapabilities = wcsRequestBuilder.getCapabilities().build().get();
 			List<String> coverageIds = WCSParseUtils.getCoverageIds(getCapabilities.getResponse());
 
-			importId = this.wcsAdapter.beginImport(this.harvest.getEndpoint());
+			importId = this.wcsAdapter.beginImport(this.harvest.getEndpointAlias(), this.harvest.getEndpoint());
 
 			//collectionId = this.wcsAdapter.insertServer(this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
 			collectionId = this.wcsAdapter.importServer(importId, this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
@@ -89,35 +89,43 @@ public class WCSHarvestable implements Harvestable {
 			HarvestCycle countElementsHarvestCycle = this.harvest.getCurrentHarvestCycle();
 
 			AtomicInteger harvestedElements = new AtomicInteger(0);
-			StampedLock lock = new StampedLock();
+			//StampedLock lock = new StampedLock();
 			for(Future<String> future : futures) {
+				//long readStamp = lock.readLock();
+				synchronized (this) {
+					try {
+						String coverageId = future.get();
 
-				long stamp = lock.readLock();
-				try {
-					String coverageId = future.get();
+						if (coverageId != null) {
+							countElementsHarvestCycle.incrementNewElements();
+						} else {
+							countElementsHarvestCycle.incrementUpdatedElements();
+						}
 
-					if (coverageId != null) {
-						countElementsHarvestCycle.incrementNewElements();
-					} else {
-						countElementsHarvestCycle.incrementUpdatedElements();
+						logger.info("Coverage " + coverageId + " added to server " + collectionId);
+					} catch (InterruptedException | ExecutionException e) {
+						countElementsHarvestCycle.incrementFailedElements();
+						logger.error(e.getMessage(), e);
+					} finally {
+						countElementsHarvestCycle.incrementTotalElements();
+						harvestedElements.incrementAndGet();
+						//lock.unlock(readStamp);
 					}
-					logger.info("Coverage " + coverageId + " added to server " + collectionId);
-				} catch (InterruptedException | ExecutionException e) {
-					countElementsHarvestCycle.incrementFailedElements();
-					logger.error(e.getMessage(), e);
 				}
-				countElementsHarvestCycle.incrementTotalElements();
-				lock.unlock(stamp);
 
-				harvestedElements.incrementAndGet();
-				if (harvestedElements.compareAndSet(50, 0)) {
-					long writeStamp = lock.writeLock();
-					this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
-					lock.unlock(writeStamp);
+				//long writeStamp = lock.writeLock();
+				synchronized (this) {
+					if (harvestedElements.compareAndSet(50, 0)) {
+						this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
+					} else if (harvestedElements.get() > 50) {
+						harvestedElements.set(0);
+						this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
+					}
 				}
+				//lock.unlock(writeStamp);
 			}
 
-			this.harvest = this.harvesterDatastore.incrementHarvestedElementsCounters(harvest.getId(), countElementsHarvestCycle);
+			this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
 			this.wcsAdapter.endImport(importId);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

@@ -1,0 +1,7 @@
+gr.cite.femme.earthserver.harvester.datastore.mongodb.host=localhost\:27017
+gr.cite.femme.earthserver.harvester.datastore.mongodb.name=harvester-db-devel
+
+gr.cite.femme.earthserver.harvester.harvests.maxLoggedHarvestCycles=5
+gr.cite.femme.earthserver.harvester.cycle.milliseconds=20000
+
+gr.cite.femme.earthserver.wcsAdapter.femme.url=http://localhost:8080/femme-application-devel

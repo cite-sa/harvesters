@@ -49,7 +49,7 @@ public class HarvestCycle {
     }
 
     public synchronized Long getTotalElements() {
-        return totalElements.longValue();
+        return totalElements.get();
     }
 
     public synchronized void setTotalElements(Long totalElements) {
@@ -58,7 +58,7 @@ public class HarvestCycle {
 
 
     public synchronized Long getNewElements() {
-        return newElements.longValue();
+        return newElements.get();
     }
 
     public synchronized void setNewElements(Long newElements) {
@@ -66,7 +66,7 @@ public class HarvestCycle {
     }
 
     public synchronized Long getUpdatedElements() {
-        return updatedElements.longValue();
+        return updatedElements.get();
     }
 
     public synchronized void setUpdatedElements(Long updatedElements) {
@@ -74,7 +74,7 @@ public class HarvestCycle {
     }
 
     public synchronized Long getFailedElements() {
-        return failedElements.longValue();
+        return failedElements.get();
     }
 
     public synchronized void setFailedElements(Long failedElements) {

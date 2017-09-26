@@ -11,13 +11,13 @@
 		<mongodb.version>3.4.2</mongodb.version>
 	</properties>
 
- 	<repositories>
-		<repository>
-			<id>archiva.internal</id>
-			<name>Internal Snapshot Repository</name>
-			<url>http://maven.local.cite.gr:8080/repository/internal/</url>
-		</repository>
-	</repositories>
+ 	<!--<repositories>-->
+		<!--<repository>-->
+			<!--<id>archiva.internal</id>-->
+			<!--<name>Internal Snapshot Repository</name>-->
+			<!--<url>http://maven.local.cite.gr:8080/repository/internal/</url>-->
+		<!--</repository>-->
+	<!--</repositories>-->
 
 	<dependencies>
 		<dependency>
