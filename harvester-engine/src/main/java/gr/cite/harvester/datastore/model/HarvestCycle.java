@@ -24,6 +24,16 @@ public class HarvestCycle {
         this.errorMessage = null;
     }
 
+    public HarvestCycle(HarvestCycle harvestCycle) {
+        this.startTime = harvestCycle.getStartTime();
+        this.endTime = harvestCycle.getEndTime();
+        this.totalElements = new AtomicLong(harvestCycle.getTotalElements());
+        this.newElements = new AtomicLong(harvestCycle.getNewElements());
+        this.updatedElements = new AtomicLong(harvestCycle.getUpdatedElements());
+        this.failedElements = new AtomicLong(harvestCycle.getFailedElements());
+        this.errorMessage = harvestCycle.getErrorMessage();
+    }
+
     public String getId() {
         return id;
     }
@@ -81,27 +91,31 @@ public class HarvestCycle {
         this.failedElements = new AtomicLong(failedElements);
     }
 
-    public String getErrorMessage() {
+    public synchronized String getErrorMessage() {
         return errorMessage;
     }
 
-    public void setErrorMessage(String errorMessage) {
+    public synchronized void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
-    public Long incrementTotalElements() {
+    public synchronized Long incrementTotalElements() {
         return this.totalElements.incrementAndGet();
     }
 
-    public Long incrementNewElements() {
+    public synchronized Long incrementNewElements() {
         return this.newElements.incrementAndGet();
     }
 
-    public Long incrementUpdatedElements() {
+    public synchronized Long incrementUpdatedElements() {
         return this.updatedElements.incrementAndGet();
     }
 
-    public Long incrementFailedElements() {
+    public synchronized Long incrementFailedElements() {
         return this.failedElements.incrementAndGet();
+    }
+
+    public synchronized HarvestCycle copy() {
+        return new HarvestCycle(this);
     }
 }
