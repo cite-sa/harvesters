@@ -1,43 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-	<!-- <property name="WEBAPP_LOGS" value="/home/kapostolopoulos/apache-tomcat-8.5.4/logs" /> -->
-
-	 <!--<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${CATALINA_HOME}/logs/harvester.log</file>
-		 <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			 <fileNamePattern>${CATALINA_HOME}/logs/archived/harvester.%d{yyyy-MM}.%i.log</fileNamePattern>
-			 <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-				 <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-					 <maxFileSize>30MB</maxFileSize>
-				 </timeBasedFileNamingAndTriggeringPolicy>
-			 </triggeringPolicy>
-			 <maxHistory>12</maxHistory>
-		 </rollingPolicy>
-
-		 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			 <Pattern>%date{ISO8601} [%thread] %-5level %logger{36} - %message%n</Pattern>
-		 </encoder>
-	</appender>-->
-	
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+	<!--<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>%date{ISO8601} [%thread] %-5level %logger{36} - %message%n</Pattern>
 		</encoder>
     </appender>
-
 	<logger name="org.mongodb.driver" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
-		 <!--<appender-ref ref="FILE" />-->
 	</logger>
 	<logger name="gr.cite.earthserver.harvester.application" level="DEBUG" additivity="false">
 		<appender-ref ref="STDOUT" />
-		 <!--<appender-ref ref="FILE" />-->
 	</logger>
-
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
-		 <!--<appender-ref ref="FILE" />-->
+	</root>-->
+
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${CATALINA_HOME}/logs/harvester.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${CATALINA_HOME}/logs/archived/harvester.%d{yyyy-MM}.%i.log</fileNamePattern>
+			<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+				<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+					<maxFileSize>30MB</maxFileSize>
+				</timeBasedFileNamingAndTriggeringPolicy>
+			</triggeringPolicy>
+			<maxHistory>12</maxHistory>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>%date{ISO8601} [%thread] %-5level %logger{36} - %message%n</Pattern>
+		</encoder>
+	</appender>
+	<logger name="org.mongodb.driver" level="INFO" additivity="false">
+		<appender-ref ref="FILE" />
+	</logger>
+	<logger name="gr.cite.earthserver.harvester.application" level="DEBUG" additivity="false">
+		<appender-ref ref="FILE" />
+	</logger>
+	<root level="INFO">
+		<appender-ref ref="FILE" />
 	</root>
 
 </configuration>

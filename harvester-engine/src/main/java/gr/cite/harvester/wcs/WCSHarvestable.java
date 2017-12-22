@@ -111,10 +111,7 @@ public class WCSHarvestable implements Harvestable {
 						harvestedElements.incrementAndGet();
 						//lock.unlock(readStamp);
 					}
-				}
 
-				//long writeStamp = lock.writeLock();
-				synchronized (this) {
 					if (harvestedElements.compareAndSet(50, 0)) {
 						this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
 					} else if (harvestedElements.get() > 50) {
@@ -122,6 +119,16 @@ public class WCSHarvestable implements Harvestable {
 						this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
 					}
 				}
+
+				//long writeStamp = lock.writeLock();
+				/*synchronized (this) {
+					if (harvestedElements.compareAndSet(50, 0)) {
+						this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
+					} else if (harvestedElements.get() > 50) {
+						harvestedElements.set(0);
+						this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
+					}
+				}*/
 				//lock.unlock(writeStamp);
 			}
 

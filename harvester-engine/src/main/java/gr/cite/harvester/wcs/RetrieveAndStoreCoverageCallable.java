@@ -1,7 +1,9 @@
 package gr.cite.harvester.wcs;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 
+import gr.cite.earthserver.wcs.utils.WCSFemmeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +34,10 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 		
 	@Override
 	public String call() throws FemmeException, WCSRequestException, ParseException {
-		//WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
-		return this.adapter.importCoverage(this.importId, wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get());
+		WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
+		//Map<String, String> geoData = WCSFemmeMapper.fromCoverageToBBox(describeCoverage);
+		
+		return this.adapter.importCoverage(this.importId, describeCoverage);
 
 		/*if (collectionId != null) {
 			logger.info("CoverageId to be added: " + coverageId);
