@@ -89,13 +89,16 @@ public class WCSHarvestable implements Harvestable {
 			HarvestCycle countElementsHarvestCycle = this.harvest.getCurrentHarvestCycle();
 
 			AtomicInteger harvestedElements = new AtomicInteger(0);
+			AtomicInteger total = new AtomicInteger(0);
+			
 			//StampedLock lock = new StampedLock();
-			for(Future<String> future : futures) {
+			for (Future<String> future : futures) {
 				//long readStamp = lock.readLock();
 				synchronized (this) {
 					try {
 						String coverageId = future.get();
 
+						total.incrementAndGet();
 						if (coverageId != null) {
 							countElementsHarvestCycle.incrementNewElements();
 						} else {
@@ -131,7 +134,7 @@ public class WCSHarvestable implements Harvestable {
 				}*/
 				//lock.unlock(writeStamp);
 			}
-
+			System.out.println("TOTAL ARE: " + total);
 			this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
 			this.wcsAdapter.endImport(importId);
 		} catch (Exception e) {

@@ -6,7 +6,8 @@
   <packaging>pom</packaging>
   
   <modules>
-        <module>../harvester-application</module>
-        <module>../harvester-engine</module>
+      	<module>../../femme/wcs-adapter</module>
+	  <module>../harvester-engine</module>
+	  <module>../harvester-application</module>
     </modules>
 </project>

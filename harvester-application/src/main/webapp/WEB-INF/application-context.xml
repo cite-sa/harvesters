@@ -15,10 +15,11 @@
 			http://www.springframework.org/schema/task
 	        http://www.springframework.org/schema/task/spring-task-4.3.xsd">
 
-	<context:property-placeholder location="WEB-INF/harvester.properties.prod" />
+	<context:property-placeholder location="WEB-INF/harvester.properties.devel" />
 
 	<bean id="wcsAdapterr" class="gr.cite.earthserver.wcs.adapter.WCSAdapter" scope="prototype">
 		<constructor-arg value="${gr.cite.femme.earthserver.wcsAdapter.femme.url}" />
+		<constructor-arg value="${gr.cite.femme.earthserver.wcsAdapter.femme.geo.url}" />
 	</bean>
 
 	<bean id="wcsHarvestable" class="gr.cite.harvester.wcs.WCSHarvestable" scope="request">
