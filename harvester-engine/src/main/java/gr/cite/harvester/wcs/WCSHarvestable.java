@@ -63,7 +63,7 @@ public class WCSHarvestable implements Harvestable {
 	@Override
 	public Harvest harvest() throws FemmeException {
 		String importId;
-		String collectionId;
+		String serverId;
 		ExecutorService executor = Executors.newFixedThreadPool(15);
 		
 		try {
@@ -74,14 +74,14 @@ public class WCSHarvestable implements Harvestable {
 			importId = this.wcsAdapter.beginImport(this.harvest.getEndpointAlias(), this.harvest.getEndpoint());
 
 			//collectionId = this.wcsAdapter.insertServer(this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
-			collectionId = this.wcsAdapter.importServer(importId, this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
+			serverId = this.wcsAdapter.importServer(importId, this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
 
 			List<Future<String>> futures = new ArrayList<>();
 
 			logger.info("Total coverages to be inserted: " + coverageIds.size());
 			
 			for (String coverageId : coverageIds) {
-				futures.add(executor.submit(new RetrieveAndStoreCoverageCallable(wcsRequestBuilder, this.wcsAdapter, importId, /*collectionId, */coverageId)));
+				futures.add(executor.submit(new RetrieveAndStoreCoverageCallable(wcsRequestBuilder, this.wcsAdapter, importId, serverId, coverageId)));
 //				WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
 //				femmeClient.addToCollection(WCSFemmeMapper.fromCoverage(describeCoverage), collectionId);
 			}
@@ -105,7 +105,7 @@ public class WCSHarvestable implements Harvestable {
 							countElementsHarvestCycle.incrementUpdatedElements();
 						}
 
-						logger.info("Coverage " + coverageId + " added to server " + collectionId);
+						logger.info("Coverage " + coverageId + " added to server " + serverId);
 					} catch (InterruptedException | ExecutionException e) {
 						countElementsHarvestCycle.incrementFailedElements();
 						logger.error(e.getMessage(), e);

@@ -21,14 +21,14 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 	private WCSRequestBuilder wcsRequestBuilder;
 	private WCSAdapterAPI adapter;
 	private String importId;
-	//private String collectionId;
+	private String serverId;
 	private String coverageId;
 	
-	public RetrieveAndStoreCoverageCallable(WCSRequestBuilder wcsRequestBuilder, WCSAdapterAPI adapter, String importId, /*String collectionId, */String coverageId) {
+	public RetrieveAndStoreCoverageCallable(WCSRequestBuilder wcsRequestBuilder, WCSAdapterAPI adapter, String importId, String serverId, String coverageId) {
 		this.wcsRequestBuilder = wcsRequestBuilder;
 		this.adapter = adapter;
 		this.importId = importId;
-		//this.collectionId = collectionId;
+		this.serverId = serverId;
 		this.coverageId = coverageId;
 	}
 		
@@ -37,7 +37,7 @@ public class RetrieveAndStoreCoverageCallable implements Callable<String>{
 		WCSResponse describeCoverage = wcsRequestBuilder.describeCoverage().coverageId(coverageId).build().get();
 		//Map<String, String> geoData = WCSFemmeMapper.fromCoverageToBBox(describeCoverage);
 		
-		return this.adapter.importCoverage(this.importId, describeCoverage);
+		return this.adapter.importCoverage(this.importId, this.serverId, describeCoverage);
 
 		/*if (collectionId != null) {
 			logger.info("CoverageId to be added: " + coverageId);
