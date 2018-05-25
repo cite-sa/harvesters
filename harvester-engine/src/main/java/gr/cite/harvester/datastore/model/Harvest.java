@@ -17,6 +17,9 @@ public class Harvest {
 	private String id;
 	
 	@JsonProperty
+	private HarvestType type;
+	
+	@JsonProperty
 	private String endpoint;
 	
 	@JsonProperty
@@ -62,7 +65,15 @@ public class Harvest {
 	public void setId(String id) {
 		this.id = id;
 	}
-
+	
+	public HarvestType getType() {
+		return type;
+	}
+	
+	public void setType(HarvestType type) {
+		this.type = type;
+	}
+	
 	public String getEndpoint() {
 		return endpoint;
 	}

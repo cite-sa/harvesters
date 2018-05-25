@@ -28,6 +28,10 @@ public class Harvester {
 		return harvesterDatastore.deleteHarvest(id);
 	}
 	
+	public Harvest updateHarvest(Harvest harvest) {
+		return harvesterDatastore.updateHarvest(harvest);
+	}
+	
 	public Harvest updateHarvestStatus(String id, Status status) {
 		return harvesterDatastore.updateHarvestStatus(id, status);
 	}

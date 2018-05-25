@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -18,7 +17,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
+import gr.cite.harvester.core.HarvestableFactory;
 import gr.cite.harvester.datastore.model.Harvest;
 import gr.cite.harvester.datastore.model.Status;
 import org.springframework.stereotype.Component;
@@ -30,24 +31,23 @@ import gr.cite.harvester.core.Harvester;
 @Path("harvester")
 @Produces(MediaType.APPLICATION_JSON)
 public class HarvesterResource {
-
 	private Harvester harvester;
-
-	private Harvestable harvestable;
+	private HarvestableFactory harvestableFactory;
+	//private Harvestable harvestable;
 
 	@Inject
-	public HarvesterResource(Harvester harvester) {
+	public HarvesterResource(Harvester harvester, HarvestableFactory harvestableFactory) {
 		this.harvester = harvester;
+		this.harvestableFactory = harvestableFactory;
 	}
 
-	@Inject
+	/*@Inject
 	public void setHarvestable(Harvestable harvestable) {
 		this.harvestable = harvestable;
-	}
+	}*/
 
 	@GET
 	@Path("ping")
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response ping() {
 		return Response.ok("pong").build();
 	}
@@ -55,53 +55,53 @@ public class HarvesterResource {
 	@POST
 	@Path("harvests")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response register(Harvest harvest) {
 
 		if (harvest.getEndpointAlias() == null) {
 			harvest.setEndpointAlias(UUID.randomUUID().toString());
 		}
+		
+		Harvestable harvestable = this.harvestableFactory.get(harvest.getType());
 		harvestable.setHarvest(harvest);
 		String id = harvester.register(harvestable);
 
-		return Response.ok(id).build();
+		return Response.created(UriBuilder.fromResource(HarvesterResource.class).path("harvests").path(id).build()).build();
+	}
+	
+	@POST
+	@Path("harvests/{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response update(@PathParam("id") String id, Harvest harvest) {
+		harvest.setId(id);
+		
+		if (harvest.getEndpointAlias() == null) {
+			harvest.setEndpointAlias(UUID.randomUUID().toString());
+		}
+		
+		harvest = harvester.updateHarvest(harvest);
+		
+		return Response.ok(harvest).build();
+	}
+	
+	@POST
+	@Path("harvests/{id}/status")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateHarvestStatus(@PathParam("id") String id, Status status) {
+		Harvest harvest = null;
+		if (Status.STOPPED.equals(status) || Status.PENDING.equals(status)) {
+			harvest = harvester.updateHarvestStatus(id, status);
+		}
+		
+		return Response.ok(harvest).build();
 	}
 
 	@DELETE
 	@Path("harvests")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response deregister(Harvest harvest) {
 		String id = harvester.unregister(harvest.getId());
 		return Response.ok(id).build();
 	}
-
-	@POST
-	@Path("harvests/{id}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response editHarvest(@PathParam("id") String id, Status status) {
-		Harvest harvest = null;
-		if (Status.STOPPED.equals(status) || Status.PENDING.equals(status)) {
-			harvest = harvester.updateHarvestStatus(id, status);
-		}
-
-		return Response.ok(harvest).build();
-	}
-
-	/*
-	 * @POST
-	 * 
-	 * @Path("harvests/{id}/start") public Response
-	 * startHarvest(@PathParam("id") String id) { if (id != null) {
-	 * harvester.startHarvest(id); } else { harvester.startAllHarvests(); }
-	 * 
-	 * return Response.ok().build(); }
-	 * 
-	 * @POST
-	 * 
-	 * @Path("harvests/{id}/stop") public Response stopHarvest(@PathParam("id")
-	 * String id) { harvester.stopHarvest(id); return Response.ok(id).build(); }
-	 */
 
 	@GET
 	@Path("/harvests/{id}")
@@ -119,7 +119,6 @@ public class HarvesterResource {
 
 	@GET
 	@Path("getHarvestsUI")
-	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHarvestsUI(@QueryParam("request[Size]") Integer limit,
 			@QueryParam("request[Offset]") Integer offset) {
 		List<Harvest> harvests = harvester.getHarvests(limit, offset);

@@ -4,5 +4,5 @@ gr.cite.femme.earthserver.harvester.datastore.mongodb.name=harvester-db
 gr.cite.femme.earthserver.harvester.harvests.maxLoggedHarvestCycles=5
 gr.cite.femme.earthserver.harvester.cycle.milliseconds=60000
 
-gr.cite.femme.earthserver.wcsAdapter.femme.url=http://localhost:8080/femme
-gr.cite.femme.earthserver.wcsAdapter.femme.geo.url=http://localhost:8080/femme-geo
+gr.cite.femme.earthserver.femme.url=http://localhost:8080/femme
+gr.cite.femme.earthserver.femme.geo.url=http://localhost:8080/femme-geo

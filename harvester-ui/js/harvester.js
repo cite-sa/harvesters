@@ -1,7 +1,6 @@
 $(document).ready(function () {
 	// var rootUrl = "http://earthserver-devel.vhosts.cite.gr/harvester-application/harvester/";
-	var rootUrl = "http://localhost:8082/femme-harvester-application-devel/harvester/";
-	//var rootUrl = "http://localhost:8080/harvester-application/harvester/";
+	var rootUrl = "http://localhost:8082/femme-harvester/harvester/";
 	var harvestsUrl = rootUrl + 'harvests';
 	var retrieveHarvestsUrl = rootUrl + 'getHarvestsUI';
 	var editHarvestsUrl = rootUrl + 'editHarvests';
@@ -14,7 +13,7 @@ $(document).ready(function () {
 		//requestData.id = rowKeys.ID;
 		var requestData = "PENDING";
 
-		Earthserver.Client.Utilities.callWS(harvestsUrl + '/' + rowKeys.ID, 'POST', {
+		Earthserver.Client.Utilities.callWS(harvestsUrl + '/' + rowKeys.ID + '/status', 'POST', {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
 			requestData: requestData,
@@ -36,7 +35,7 @@ $(document).ready(function () {
 		//requestData.id = rowKeys.ID;
 		var requestData = "STOPPED";
 
-		Earthserver.Client.Utilities.callWS(harvestsUrl + '/' + rowKeys.ID, 'POST', {
+		Earthserver.Client.Utilities.callWS(harvestsUrl + '/' + rowKeys.ID + '/status', 'POST', {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
 			requestData: requestData,
@@ -135,6 +134,7 @@ $(document).ready(function () {
 						item.status = data.status;
 						item.endpoint = data.endpoint;
 						item.endpointAlias = data.endpointAlias;
+						item.endpointType = data.type;
 						item.period = data.schedule.period;
 						item.periodType = data.schedule.periodType;
 						item.totalElements = data.currentHarvestCycle.totalElements;
@@ -173,13 +173,19 @@ $(document).ready(function () {
 			var requestData = {};
 			requestData.endpoint = data.endpoint;
 			requestData.endpointAlias = data.endpointAlias;
+			requestData.type = data.endpointType;
 			requestData.schedule = {};
 			requestData.schedule.period = data.period;
 			requestData.schedule.periodType = data.periodType;
 
 			console.log(requestData);
 
-			Earthserver.Client.Utilities.callWS(harvestsUrl, 'POST', {
+			var id = keys.ID ? '/' + keys.ID : '';
+
+			console.log("AAAAAAAa");
+			console.log(id);
+
+			Earthserver.Client.Utilities.callWS(harvestsUrl + id, 'POST', {
 				contentType: "application/json; charset=utf-8",
 				dataType: "text",
 				requestData: requestData,

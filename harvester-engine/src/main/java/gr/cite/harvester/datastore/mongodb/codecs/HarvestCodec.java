@@ -6,6 +6,7 @@ import java.util.List;
 
 import gr.cite.harvester.datastore.model.HarvestCycle;
 import gr.cite.harvester.datastore.model.Harvest;
+import gr.cite.harvester.datastore.model.HarvestType;
 import gr.cite.harvester.datastore.model.Status;
 import org.bson.BsonReader;
 import org.bson.BsonString;
@@ -23,6 +24,7 @@ import gr.cite.harvester.datastore.model.Schedule;
 public class HarvestCodec implements CollectibleCodec<Harvest> {
 	
 	private static final String HARVEST_ID_KEY = "_id";
+	private static final String HARVEST_TYPE_KEY = "type";
 	private static final String HARVEST_ENDPOINT_KEY = "endpoint";
 	private static final String HARVEST_ENDPOINT_ALIAS_KEY = "endpointAlias";
 	private static final String HARVEST_SCHEDULE_KEY = "schedule";
@@ -48,6 +50,9 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 		
 		if (value.getId() != null) {
 			writer.writeObjectId(HarvestCodec.HARVEST_ID_KEY, new ObjectId(value.getId()));
+		}
+		if (value.getType() != null) {
+			writer.writeString(HarvestCodec.HARVEST_TYPE_KEY, value.getType().name());
 		}
 		if (value.getEndpoint() != null) {
 			writer.writeString(HarvestCodec.HARVEST_ENDPOINT_KEY, value.getEndpoint());
@@ -91,6 +96,7 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 	@Override
 	public Harvest decode(BsonReader reader, DecoderContext decoderContext) {
 		String id = null, endpoint = null, endpointAlias = null;
+		HarvestType type = null;
 		Schedule schedule = null;
 		Status status = null;
 		HarvestCycle currentHarvestCycle = null;
@@ -104,6 +110,8 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
             
             if (fieldName.equals(HarvestCodec.HARVEST_ID_KEY)) {
             	id = reader.readObjectId().toString();
+			} else if (fieldName.equals(HarvestCodec.HARVEST_TYPE_KEY)) {
+				type = HarvestType.valueOf(reader.readString());
             } else if (fieldName.equals(HarvestCodec.HARVEST_ENDPOINT_KEY)) {
             	endpoint = reader.readString();
             } else if (fieldName.equals(HarvestCodec.HARVEST_ENDPOINT_ALIAS_KEY)) {
@@ -137,6 +145,7 @@ public class HarvestCodec implements CollectibleCodec<Harvest> {
 
 		Harvest harvest = new Harvest();
 		harvest.setId(id);
+		harvest.setType(type);
 		harvest.setEndpoint(endpoint);
 		harvest.setEndpointAlias(endpointAlias);
 		harvest.setSchedule(schedule);

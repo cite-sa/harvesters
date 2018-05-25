@@ -32,7 +32,7 @@ public class WCSHarvesterTest {
 	@Before
 	public void init() {
 		/*this.harvester = new Harvester(new HarvesterDatastoreMongo("localhost:27017", "harvester-db", 5));*/
-		harvesterDatastore = new HarvesterDatastoreMongo("localhost:27017", "harvester-db", 5);
+		//harvesterDatastore = new HarvesterDatastoreMongo("localhost:27017", "harvester-db", 5);
 	}
 
 	@After
@@ -86,10 +86,10 @@ public class WCSHarvesterTest {
 //		harvest.setSchedule(schedule);
 		
 
-		WCSHarvestable wcsHarvestable = new WCSHarvestable();
+		/*WCSHarvestable wcsHarvestable = new WCSHarvestable();
 		wcsHarvestable.setHarvest(harvest);
 
-		this.harvester.register(wcsHarvestable);
+		this.harvester.register(wcsHarvestable);*/
 		
 	}
 }

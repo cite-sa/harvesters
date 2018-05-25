@@ -12,8 +12,8 @@ import gr.cite.harvester.datastore.mongodb.HarvesterDatastore;
 public interface Harvestable {
 
 	public HarvesterDatastore getHarvesterDatastore();
-
-	public void setHarvesterDatastore(HarvesterDatastore harvesterDatastore);
+	
+	/*public void setHarvesterDatastore(HarvesterDatastore harvesterDatastore);*/
 
 	public Harvest getHarvest();
 

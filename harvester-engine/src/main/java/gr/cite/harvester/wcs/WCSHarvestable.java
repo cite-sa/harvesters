@@ -7,10 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.StampedLock;
-
-import javax.inject.Inject;
 
 import gr.cite.harvester.datastore.model.HarvestCycle;
 import gr.cite.harvester.datastore.mongodb.HarvesterDatastore;
@@ -24,33 +20,38 @@ import gr.cite.earthserver.wcs.core.WCSRequestBuilder;
 import gr.cite.earthserver.wcs.core.WCSResponse;
 import gr.cite.earthserver.wcs.utils.WCSParseUtils;
 import gr.cite.femme.client.FemmeException;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
+@Component
 public class WCSHarvestable implements Harvestable {
 	private static final Logger logger = LoggerFactory.getLogger(WCSHarvestable.class);
 
 	private HarvesterDatastore harvesterDatastore;
-	private Harvest harvest;
 	private WCSAdapterAPI wcsAdapter;
-
-	/*@Inject
-	public WCSHarvestable(WCSAdapterAPI wcsAdapter) {
-		this.wcsAdapter = wcsAdapter;
-	}*/
+	private Harvest harvest;
 	
 	@Inject
-	public void setWcsAdapter(WCSAdapterAPI wcsAdapter) {
+	public WCSHarvestable(HarvesterDatastore harvesterDatastore, WCSAdapterAPI wcsAdapter) {
+		this.harvesterDatastore = harvesterDatastore;
 		this.wcsAdapter = wcsAdapter;
 	}
+	
+	/*@Inject
+	public void setWcsAdapter(WCSAdapterAPI wcsAdapter) {
+		this.wcsAdapter = wcsAdapter;
+	}*/
 
 	@Override
 	public HarvesterDatastore getHarvesterDatastore() {
 		return this.harvesterDatastore;
 	}
 
-	@Override
+	/*@Override
 	public void setHarvesterDatastore(HarvesterDatastore harvesterDatastore) {
 		this.harvesterDatastore = harvesterDatastore;
-	}
+	}*/
 
 	public Harvest getHarvest() {
 		return this.harvest;
@@ -70,9 +71,9 @@ public class WCSHarvestable implements Harvestable {
 			WCSRequestBuilder wcsRequestBuilder = new WCSRequestBuilder().endpoint(this.harvest.getEndpoint());
 			WCSResponse getCapabilities = wcsRequestBuilder.getCapabilities().build().get();
 			List<String> coverageIds = WCSParseUtils.getCoverageIds(getCapabilities.getResponse());
-
+			
 			importId = this.wcsAdapter.beginImport(this.harvest.getEndpointAlias(), this.harvest.getEndpoint());
-
+			
 			//collectionId = this.wcsAdapter.insertServer(this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
 			serverId = this.wcsAdapter.importServer(importId, this.harvest.getEndpoint(), this.harvest.getEndpointAlias(), getCapabilities);
 

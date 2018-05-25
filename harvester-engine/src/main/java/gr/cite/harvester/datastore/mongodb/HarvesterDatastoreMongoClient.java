@@ -10,7 +10,11 @@ import org.bson.codecs.configuration.CodecRegistry;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
+@Component
 public class HarvesterDatastoreMongoClient {
 	
 //	private static final String DATABASE_HOST = "es-devel1.local.cite.gr:27017";
@@ -28,6 +32,7 @@ public class HarvesterDatastoreMongoClient {
 		this(DATABASE_HOST, DATABASE_NAME);
 	}
 
+	@Inject
 	public HarvesterDatastoreMongoClient(String dbHost, String dbName) {
 
 		this.client = new MongoClient(dbHost);

@@ -16,15 +16,20 @@ import org.bson.types.ObjectId;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
+@Component
 public class HarvesterDatastoreMongo implements HarvesterDatastore {
 
 	private HarvesterDatastoreMongoClient mongoClient;
 	private MongoCollection<Harvest> harvestCollection;
 	private Integer maxLoggedHarvestCycles;
 
-	public HarvesterDatastoreMongo(String dbHost, String dbName, Integer maxLoggedHarvestCycles) {
-		this.mongoClient = new HarvesterDatastoreMongoClient(dbHost, dbName);
+	@Inject
+	public HarvesterDatastoreMongo(HarvesterDatastoreMongoClient mongoClient, Integer maxLoggedHarvestCycles) {
+		this.mongoClient = mongoClient;
 		this.harvestCollection = this.mongoClient.getHarvestCollection();
 		this.maxLoggedHarvestCycles = maxLoggedHarvestCycles;
 	}
@@ -39,13 +44,13 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 		harvest.setCreated(Instant.now());
 		harvest.setModified(null);
 
-		harvestCollection.insertOne(harvest);
+		this.harvestCollection.insertOne(harvest);
 		return harvest.getId();
 	}
 	
 	@Override
 	public String deleteHarvest(String id) {
-		Harvest harvest = harvestCollection.findOneAndDelete(Filters.eq("_id", new ObjectId(id)),
+		Harvest harvest = this.harvestCollection.findOneAndDelete(Filters.eq("_id", new ObjectId(id)),
 				new FindOneAndDeleteOptions().projection(Projections.include("_id")));
 		
 		return harvest != null ? harvest.getId() : null;
@@ -57,7 +62,7 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 		harvest.setCreated(null);
 		harvest.setModified(Instant.now());
 
-		return harvestCollection.findOneAndUpdate(
+		return this.harvestCollection.findOneAndUpdate(
 				Filters.eq("_id", new ObjectId(harvest.getId())),
 				new Document().append("$set", harvest),
 				new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER));
@@ -72,7 +77,7 @@ public class HarvesterDatastoreMongo implements HarvesterDatastore {
 	public Harvest updateHarvestStatus(String harvestId, Status status, String errorMessage) {
 		Harvest harvest = null;
 
-		if(Status.RUNNING.equals(status)) {
+		if (Status.RUNNING.equals(status)) {
 			harvest = getHarvestById(harvestId);
 			harvest.setStatus(status);
 

@@ -21,12 +21,12 @@ public class HarvesterTask implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(HarvesterTask.class);
 
 	private HarvesterDatastore harvesterDatastore;
-	private WCSAdapterAPI wcsAdapter;
+	private HarvestableFactory harvestableFactory;
 
 	@Inject
-	public HarvesterTask(HarvesterDatastore harvesterDatastore, WCSAdapterAPI wcsAdapter){
+	public HarvesterTask(HarvesterDatastore harvesterDatastore, HarvestableFactory harvestableFactory) {
 		this.harvesterDatastore = harvesterDatastore;
-		this.wcsAdapter = wcsAdapter;
+		this.harvestableFactory = harvestableFactory;
 	}
 
 	@Override
@@ -42,14 +42,13 @@ public class HarvesterTask implements Runnable {
 		ExecutorService executor = Executors.newFixedThreadPool(5);
 
 		for (Harvest harvest : harvests) {
-
-			WCSHarvestable harvestable = new WCSHarvestable();
+			Harvestable harvestable = this.harvestableFactory.get(harvest.getType());
 			harvestable.setHarvest(harvest);
-			harvestable.setWcsAdapter(wcsAdapter);
-			harvestable.setHarvesterDatastore(harvesterDatastore);
+			
 			executor.submit(() -> {
-                harvestable.setHarvest(harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.RUNNING));
-                try {
+				try {
+                	harvestable.setHarvest(harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.RUNNING));
+                
 
                     //logger.debug("Starting harvest of " + harvestable.getHarvest().getEndpoint());
                     Harvest updatedHarvest = harvestable.harvest();
@@ -64,7 +63,8 @@ public class HarvesterTask implements Runnable {
 					logger.info("----------------------------------------------------------");
 
 					harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.FINISHED);
-                } catch (FemmeException e) {
+					
+                } catch (Exception e) {
                     harvesterDatastore.updateHarvestStatus(harvestable.getHarvest().getId(), Status.ERROR, e.getMessage());
 					logger.error("Harvest for endpoint " + harvestable.getHarvest().getEndpoint() + " failed", e);
                 }
@@ -73,4 +73,14 @@ public class HarvesterTask implements Runnable {
 
 		executor.shutdown();
 	}
+	
+	/*private Harvestable buildWcsHarvestable(Harvest harvest) {
+		WCSHarvestable harvestable = new WCSHarvestable();
+		
+		harvestable.setHarvest(harvest);
+		harvestable.setWcsAdapter(wcsAdapter);
+		harvestable.setHarvesterDatastore(harvesterDatastore);
+		
+		return harvestable;
+	}*/
 }

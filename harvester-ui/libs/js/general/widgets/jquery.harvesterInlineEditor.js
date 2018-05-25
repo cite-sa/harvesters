@@ -19,11 +19,12 @@
 			var definitionTable = $('<table></table>');
 			this.element.append(definitionTable);
 
-			var endpointInfoRow = $('<tr class = "endpoint-info"></tr>'); 
-			var elementInfoRow = $('<tr class = "elements-info"></tr>');
-			var elementInfoRow2 = $('<tr class = "error-info2"></tr>');
-			var periodInfoRow = $('<tr class = "period-info"></tr>');
-			var errorInfoRow = $('<tr class = "error-info"></tr>');
+			var endpointInfoRow = $('<tr class="endpoint-info"></tr>'); 
+			var elementInfoRow = $('<tr class="elements-info"></tr>');
+			var elementInfoRow2 = $('<tr class="error-info2"></tr>');
+			var endpointTypeInfoRow = $('<tr class="endpoint-type-info"></tr>');
+			var periodInfoRow = $('<tr class="period-info"></tr>');
+			var errorInfoRow = $('<tr class="error-info"></tr>');
 
 			var id = 0;
 
@@ -33,7 +34,7 @@
 				c.append(this.sveEndpoint);
 
 				var c1 = $('<td id=label'+id+'></td>');
-				var lbl = $('<label class="formFieldLabel" id = cell'+id+' for="' + this.sveEndpoint[0].id + '">' + 'Endpoint' + '</label>');
+				var lbl = $('<label class="formFieldLabel" id = cell'+ id + ' for="' + this.sveEndpoint[0].id + '">' + 'Endpoint' + '</label>');
 				c1.append(lbl);
 
 				endpointInfoRow.append(c1);
@@ -48,7 +49,7 @@
 
 			{
 				id++;
-				var c = $('<td id=value'+id+'></td>');
+				var c = $('<td id=value' + id + '></td>');
 				this.sveEndpointAlias = $('<div id="' + $.ui.CiteBaseControl.generateControlId() + '"></div>');
 				c.append(this.sveEndpointAlias);
 
@@ -69,6 +70,34 @@
 			{
 				id++;
 				var c = $('<td id=value'+id+'></td>');
+				this.asgEndpointType = $('<div id="' + $.ui.CiteBaseControl.generateControlId() + '"></div>');
+				c.append(this.asgEndpointType);
+
+				var c8 = $('<td id=label'+id+'></td>');
+				var lbl = $('<label class="formFieldLabel" for="' + this.asgEndpointType[0].id + '">' + 'Endpoint Type' + '</label>');
+				c8.append(lbl);
+
+				endpointTypeInfoRow.append(c8);
+				endpointTypeInfoRow.append(c);
+				definitionTable.append(endpointTypeInfoRow);
+
+				var suggestions = [{ 'Text': 'WCS', 'Value': 'WCS' },
+				                   { 'Text': 'OAI-PMH', 'Value': 'OAIPMH' }];
+
+				this.asgEndpointType.CiteAutoSuggest({
+					currentDisplayMode: $.ui.CiteBaseControl.DisplayMode.Edit,
+					suggestionMode: $.ui.CiteAutoSuggest.SuggestionMode.Static,
+					uiMode: $.ui.CiteAutoSuggest.UIMode.DropDown,
+					selectionNameProperty: 'Text',
+					selectionValueProperty: 'Value',
+					staticSuggestions: suggestions,
+					autoInitialize: true
+				});
+			}
+
+			{
+				id++;
+				var c = $('<td id=value'+id+'></td>');
 				this.svePeriod = $('<div id="' + $.ui.CiteBaseControl.generateControlId() + '"></div>');
 				c.append(this.svePeriod);
 
@@ -82,6 +111,36 @@
 
 				this.svePeriod.CiteStringValueEditor({
 					currentDisplayMode: $.ui.CiteBaseControl.DisplayMode.Edit,
+					autoInitialize: true
+				});
+			}
+
+			{
+				id++;
+				var c = $('<td id=value'+id+'></td>');
+				this.asgPeriodType = $('<div id="' + $.ui.CiteBaseControl.generateControlId() + '"></div>');
+				c.append(this.asgPeriodType);
+
+				var c8 = $('<td id=label'+id+'></td>');
+				var lbl = $('<label class="formFieldLabel" for="' + this.asgPeriodType[0].id + '">' + 'Period Type' + '</label>');
+				c8.append(lbl);
+
+				periodInfoRow.append(c8);
+				periodInfoRow.append(c);
+				definitionTable.append(periodInfoRow);
+
+				var suggestions = [{ 'Text': 'Seconds', 'Value': 'SECONDS' },
+				                   { 'Text': 'Minutes', 'Value': 'MINUTES' },
+								   { 'Text': 'Hours', 'Value': 'HOURS' },
+								   { 'Text': 'Days', 'Value': 'DAYS' }];
+
+				this.asgPeriodType.CiteAutoSuggest({
+					currentDisplayMode: $.ui.CiteBaseControl.DisplayMode.Edit,
+					suggestionMode: $.ui.CiteAutoSuggest.SuggestionMode.Static,
+					uiMode: $.ui.CiteAutoSuggest.UIMode.DropDown,
+					selectionNameProperty: 'Text',
+					selectionValueProperty: 'Value',
+					staticSuggestions: suggestions,
 					autoInitialize: true
 				});
 			}
@@ -169,36 +228,6 @@
 			{
 				id++;
 				var c = $('<td id=value'+id+'></td>');
-				this.asgPeriodType = $('<div id="' + $.ui.CiteBaseControl.generateControlId() + '"></div>');
-				c.append(this.asgPeriodType);
-
-				var c8 = $('<td id=label'+id+'></td>');
-				var lbl = $('<label class="formFieldLabel" for="' + this.asgPeriodType[0].id + '">' + 'Period Type' + '</label>');
-				c8.append(lbl);
-
-				periodInfoRow.append(c8);
-				periodInfoRow.append(c);
-				definitionTable.append(periodInfoRow);
-
-				var suggestions = [{ 'Text': 'Seconds', 'Value': 'SECONDS' },
-				                   { 'Text': 'Minutes', 'Value': 'MINUTES' },
-								   { 'Text': 'Hours', 'Value': 'HOURS' },
-								   { 'Text': 'Days', 'Value': 'DAYS' }];
-
-				this.asgPeriodType.CiteAutoSuggest({
-					currentDisplayMode: $.ui.CiteBaseControl.DisplayMode.Edit,
-					suggestionMode: $.ui.CiteAutoSuggest.SuggestionMode.Static,
-					uiMode: $.ui.CiteAutoSuggest.UIMode.DropDown,
-					selectionNameProperty: 'Text',
-					selectionValueProperty: 'Value',
-					staticSuggestions: suggestions,
-					autoInitialize: true
-				});
-			}
-
-			{
-				id++;
-				var c = $('<td id=value'+id+'></td>');
 				this.sveErrMsg = $('<div id="' + $.ui.CiteBaseControl.generateControlId() + '"></div>');
 				c.append(this.sveErrMsg);
 
@@ -260,9 +289,19 @@
 				})
 			}
 		},
-		
-		periodType: function (value) {
-			var control = this.asgPeriodType;
+
+		endpoint: function (value) {
+			var control = this.sveEndpoint;
+			if (arguments.length === 0) {
+				return (control.length > 0) ? control.CiteStringValueEditor('getValue') : undefined;
+			} else {
+				control.CiteStringValueEditor('setValue', value);
+				return this;
+			}
+		},
+
+		endpointType: function (value) {
+			var control = this.asgEndpointType;
 			if (arguments.length === 0) {
 				if (control.length > 0) { value = control.CiteAutoSuggest('getSingleValueOrDefault'); }
 				return value;
@@ -271,16 +310,6 @@
 					control.CiteAutoSuggest('clearSelection');
 				else
 					control.CiteAutoSuggest('selectItem', value);
-				return this;
-			}
-		},
-
-		endpoint: function (value) {
-			var control = this.sveEndpoint;
-			if (arguments.length === 0) {
-				return (control.length > 0) ? control.CiteStringValueEditor('getValue') : undefined;
-			} else {
-				control.CiteStringValueEditor('setValue', value);
 				return this;
 			}
 		},
@@ -301,6 +330,20 @@
 				return (control.length > 0) ? control.CiteStringValueEditor('getValue') : undefined;
 			} else {
 				control.CiteStringValueEditor('setValue', value);
+				return this;
+			}
+		},
+
+		periodType: function (value) {
+			var control = this.asgPeriodType;
+			if (arguments.length === 0) {
+				if (control.length > 0) { value = control.CiteAutoSuggest('getSingleValueOrDefault'); }
+				return value;
+			} else {
+				if (value === undefined || value === null || value === '')
+					control.CiteAutoSuggest('clearSelection');
+				else
+					control.CiteAutoSuggest('selectItem', value);
 				return this;
 			}
 		},
@@ -371,6 +414,8 @@
 			result.endpoint = this.sveEndpoint.CiteStringValueEditor('getValue');
 			result.endpointAlias = this.sveEndpointAlias.CiteStringValueEditor('getValue');
 			result.period = this.svePeriod.CiteStringValueEditor('getValue');
+			var endpointTypeValues = this.asgEndpointType.CiteAutoSuggest('getSelectedValues');
+			result.endpointType = (endpointTypeValues.length == 0) ? '' : endpointTypeValues[0];
 			var values = this.asgPeriodType.CiteAutoSuggest('getSelectedValues');
 			result.periodType = (values.length == 0) ? '' : values[0];
 			result.totalElements = this.sveTotal.CiteStringReadOnlyValueEditor('getValue');
@@ -386,6 +431,7 @@
 		showData: function (item) {
 			this.endpoint(item.endpoint);
 			this.endpointAlias(item.endpointAlias);
+			this.endpointType(item.endpointType);
 			this.period(item.period);
 			this.periodType(item.periodType);
 			this.totalElements(item.totalElements);
@@ -409,6 +455,7 @@
 		},
 
 		applyViewMode: function () {
+			if (this.asgEndpointType) this.asgEndpointType.CiteAutoSuggest('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
 			if (this.asgPeriodType) this.asgPeriodType.CiteAutoSuggest('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
 			if (this.sveEndpoint) this.sveEndpoint.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());
 			if (this.sveEndpointAlias) this.sveEndpointAlias.CiteStringValueEditor('setCurrentDisplayModeAndApply', this.getCurrentDisplayMode());

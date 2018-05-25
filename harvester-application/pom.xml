@@ -8,7 +8,7 @@
 	<name>Harvester Application</name>
 
 	<properties>
-		<spring.version>4.3.7.RELEASE</spring.version>
+		<!--<spring.version>4.3.7.RELEASE</spring.version>-->
 		<jersey.version>2.25.1</jersey.version>
 		<slf4j.version>1.7.21</slf4j.version>
 		<logback.version>1.1.7</logback.version>
@@ -34,7 +34,7 @@
 		    <version>3.1.0</version>
 		    <scope>provided</scope>
 		</dependency> -->
-		<dependency>
+		<!--<dependency>
 			<groupId>org.glassfish.jersey.ext</groupId>
 			<artifactId>jersey-spring3</artifactId>
 			<version>${jersey.version}</version>
@@ -59,10 +59,10 @@
 			<version>${jersey.version}</version>
 		</dependency>
 		
-		<!-- <dependency> <groupId>org.glassfish.jersey.media</groupId> <artifactId>jersey-media-multipart</artifactId> 
-			<version>${jersey.version}</version> </dependency> -->
+		&lt;!&ndash; <dependency> <groupId>org.glassfish.jersey.media</groupId> <artifactId>jersey-media-multipart</artifactId>
+			<version>${jersey.version}</version> </dependency> &ndash;&gt;
 
-		<!-- Spring 3 dependencies -->
+		&lt;!&ndash; Spring 3 dependencies &ndash;&gt;
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
@@ -102,8 +102,8 @@
 		    <version>3.2.2</version>
 		</dependency>
 
-		<!-- testing -->
-		<!-- Jersey-client -->
+		&lt;!&ndash; testing &ndash;&gt;
+		&lt;!&ndash; Jersey-client &ndash;&gt;
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
@@ -121,7 +121,7 @@
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency>-->
 	
 		<dependency>
 			<groupId>org.slf4j</groupId>

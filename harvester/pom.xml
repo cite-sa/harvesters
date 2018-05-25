@@ -9,5 +9,6 @@
       	<module>../../femme/wcs-adapter</module>
 	  <module>../harvester-engine</module>
 	  <module>../harvester-application</module>
+	  <module>../oai-pmh-harvester</module>
     </modules>
 </project>
