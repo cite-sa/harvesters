@@ -82,7 +82,8 @@
 				definitionTable.append(endpointTypeInfoRow);
 
 				var suggestions = [{ 'Text': 'WCS', 'Value': 'WCS' },
-				                   { 'Text': 'OAI-PMH', 'Value': 'OAIPMH' }];
+								   { 'Text': 'OAI-PMH', 'Value': 'OAIPMH' },
+								   { 'Text': 'OBIS', 'Value': 'OBIS' }];
 
 				this.asgEndpointType.CiteAutoSuggest({
 					currentDisplayMode: $.ui.CiteBaseControl.DisplayMode.Edit,

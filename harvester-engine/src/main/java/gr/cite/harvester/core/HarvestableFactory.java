@@ -1,8 +1,8 @@
 package gr.cite.harvester.core;
 
-import gr.cite.harvester.core.Harvestable;
 import gr.cite.harvester.datastore.model.HarvestType;
 import gr.cite.harvester.oaipmh.OaiPmhHarvestable;
+import gr.cite.harvester.obis.ObisHarvestable;
 import gr.cite.harvester.wcs.WCSHarvestable;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -27,8 +27,10 @@ public class HarvestableFactory implements ApplicationContextAware {
 				return this.applicationContext.getBean(WCSHarvestable.class);
 			case OAIPMH:
 				return this.applicationContext.getBean(OaiPmhHarvestable.class);
+			case OBIS:
+				return this.applicationContext.getBean(ObisHarvestable.class);
 			default:
-				return this.applicationContext.getBean(WCSHarvestable.class);
+				throw new IllegalArgumentException("[" + type + "] is not a supported harvest type");
 		}
 	}
 }

@@ -10,6 +10,7 @@ import gr.cite.femme.core.model.Collection;
 import gr.cite.femme.core.model.DataElement;
 import gr.cite.femme.core.model.ElementType;
 import gr.cite.femme.core.model.Metadatum;
+import gr.cite.harvester.core.Adapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -21,22 +22,12 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @Component
-public class OaiPmhAdapter {
+public class OaiPmhAdapter extends Adapter {
 	private static final Logger logger = LoggerFactory.getLogger(OaiPmhAdapter.class);
-	
-	private FemmeClientAPI femmeClient;
 	
 	@Inject
 	public OaiPmhAdapter(FemmeClientAPI femmeClient) {
-		this.femmeClient = femmeClient;
-	}
-	
-	public String beginImport(String endpointAlias, String endpoint) throws FemmeException {
-		return this.femmeClient.beginImport(endpointAlias, endpoint);
-	}
-	
-	public void endImport(String importId) throws FemmeException {
-		this.femmeClient.endImport(importId);
+		super(femmeClient);
 	}
 	
 	public String importSet(String importId, String endpoint, String name, String set) throws FemmeException {
@@ -45,7 +36,7 @@ public class OaiPmhAdapter {
 		collection.setEndpoint(endpoint);
 		collection.setName(name);
 		
-		return this.femmeClient.importCollection(importId, collection);
+		return this.getFemmeClient().importCollection(importId, collection);
 	}
 	
 	public String importRecord(String importId, String setId, String recordName, String record) throws FemmeException, XMLConversionException, XPathFactoryConfigurationException, XPathEvaluationException {
@@ -63,7 +54,7 @@ public class OaiPmhAdapter {
 		
 		dataElement.setMetadata(Collections.singletonList(metadatum));
 		
-		String dataElementId = this.femmeClient.importInCollection(importId, dataElement);
+		String dataElementId = this.getFemmeClient().importInCollection(importId, dataElement);
 		
 		dataElement.setId(dataElementId);
 		

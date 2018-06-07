@@ -55,6 +55,15 @@
 		<constructor-arg ref="oaiPmhAdapter" />
 	</bean>
 
+	<!-- OAI-PMH -->
+	<bean id="obisAdapter" class="gr.cite.harvester.obis.ObisAdapter">
+		<constructor-arg ref="femmeClient" />
+	</bean>
+	<bean id="obisHarvestable" class="gr.cite.harvester.obis.ObisHarvestable" scope="prototype">
+		<constructor-arg ref="harvesterDatastore" />
+		<constructor-arg ref="obisAdapter" />
+	</bean>
+
 	<bean id="harvester" class="gr.cite.harvester.core.Harvester">
 		<constructor-arg ref="harvesterDatastore" />
 	</bean>

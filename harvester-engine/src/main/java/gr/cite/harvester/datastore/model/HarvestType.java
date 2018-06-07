@@ -1,5 +1,5 @@
 package gr.cite.harvester.datastore.model;
 
 public enum HarvestType {
-	WCS, OAIPMH
+	WCS, OAIPMH, OBIS
 }
