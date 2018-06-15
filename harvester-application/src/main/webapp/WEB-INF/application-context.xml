@@ -15,7 +15,7 @@
 			http://www.springframework.org/schema/task
 	        http://www.springframework.org/schema/task/spring-task-4.3.xsd">
 
-	<context:property-placeholder location="WEB-INF/harvester.properties.devel" />
+	<context:property-placeholder location="WEB-INF/harvester.properties.prod" />
 
 	<!-- Harvester Datastore -->
 	<bean id="harvesterDatastoreClient" class="gr.cite.harvester.datastore.mongodb.HarvesterDatastoreMongoClient">

@@ -33,13 +33,13 @@ public class StoreObisOccurrenceCallable implements Callable<String>{
 	@Override
 	public String call() throws JsonProcessingException, FemmeException {
 		String occurrenceId = this.obisAdapter.importOccurrence(this.importId, this.occurrence);
-		importOccurrenceTaxonomy(occurrence);
+		importOccurrenceTaxonomy();
 		
 		return occurrenceId;
 	}
 	
-	private void importOccurrenceTaxonomy(Map<String, Object> occurence) {
-		Map<String, Object> taxon = this.marineSpeciesTaxonomy.path(occurrence.get("aphiaID").toString()).request().get(new GenericType<Map<String, Object>>(){});
+	private void importOccurrenceTaxonomy() {
+		Map<String, Object> taxon = this.marineSpeciesTaxonomy.path(this.occurrence.get("aphiaID").toString()).request().get(new GenericType<Map<String, Object>>(){});
 		this.semanticSearchTarget.request().post(Entity.entity(taxon, MediaType.APPLICATION_JSON));
 	}
 }
