@@ -4,6 +4,7 @@ import gr.cite.femme.client.FemmeException;
 import gr.cite.harvester.core.Harvestable;
 import gr.cite.harvester.datastore.model.Harvest;
 import gr.cite.harvester.datastore.model.HarvestCycle;
+import gr.cite.harvester.datastore.model.Status;
 import gr.cite.harvester.datastore.mongodb.HarvesterDatastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,8 @@ public class ObisHarvestable implements Harvestable {
 			AtomicInteger total = new AtomicInteger(0);
 			HarvestCycle countElementsHarvestCycle = this.harvest.getCurrentHarvestCycle();
 			
-			Iterator<List<Map<String, Object>>> occurrencesIterator = obisHarvester.getOccurencesByArea(AREAID);
+			//Iterator<List<Map<String, Object>>> occurrencesIterator = obisHarvester.getOccurencesByArea(AREAID);
+			Iterator<List<Map<String, Object>>> occurrencesIterator = obisHarvester.getAllOccurences();
 			do {
 				List<Future<String>> futures = new ArrayList<>();
 				List<Map<String, Object>> occurrencesBatch = occurrencesIterator.next();
@@ -107,7 +109,7 @@ public class ObisHarvestable implements Harvestable {
 					}
 				}
 				
-			} while (occurrencesIterator.hasNext());
+			} while (occurrencesIterator.hasNext() && Status.RUNNING.equals(this.harvest.getStatus()));
 			
 			this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);
 			this.obisAdapter.endImport(importId);

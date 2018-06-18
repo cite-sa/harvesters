@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import gr.cite.harvester.datastore.model.HarvestCycle;
+import gr.cite.harvester.datastore.model.Status;
 import gr.cite.harvester.datastore.mongodb.HarvesterDatastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,6 +135,7 @@ public class WCSHarvestable implements Harvestable {
 					}
 				}*/
 				//lock.unlock(writeStamp);
+				//if (! Status.RUNNING.equals(this.harvest.getStatus()))
 			}
 			System.out.println("TOTAL ARE: " + total);
 			this.harvest = this.harvesterDatastore.updateHarvestedCyCle(harvest.getId(), countElementsHarvestCycle);

@@ -1,7 +1,6 @@
 package gr.cite.harvester.obis;
 
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +11,10 @@ public class ObisHarvester {
 	
 	public ObisHarvester(String obisUrl) {
 		this.obisTarget = ClientBuilder.newClient().target(obisUrl);
+	}
+	
+	public Iterator<List<Map<String, Object>>> getAllOccurences() {
+		return getOccurencesByAreaAndYear(null, null);
 	}
 	
 	public Iterator<List<Map<String, Object>>> getOccurencesByArea(long areaId) {
