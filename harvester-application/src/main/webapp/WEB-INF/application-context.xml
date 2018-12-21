@@ -15,7 +15,7 @@
 			http://www.springframework.org/schema/task
 	        http://www.springframework.org/schema/task/spring-task-4.3.xsd">
 
-	<context:property-placeholder location="WEB-INF/harvester.properties.prod" />
+	<context:property-placeholder location="WEB-INF/harvester.properties.devel" />
 
 	<!-- Harvester Datastore -->
 	<bean id="harvesterDatastoreClient" class="gr.cite.harvester.datastore.mongodb.HarvesterDatastoreMongoClient">
@@ -47,12 +47,12 @@
 	</bean>
 
 	<!-- OAI-PMH -->
-	<bean id="oaiPmhAdapter" class="gr.cite.harvester.oaipmh.OaiPmhAdapter">
+	<bean id="openAireAdapter" class="gr.cite.harvester.oaipmh.OaiPmhAdapter">
 		<constructor-arg ref="femmeClient" />
 	</bean>
 	<bean id="oaiPmhHarvestable" class="gr.cite.harvester.oaipmh.OaiPmhHarvestable" scope="prototype">
 		<constructor-arg ref="harvesterDatastore" />
-		<constructor-arg ref="oaiPmhAdapter" />
+		<constructor-arg ref="openAireAdapter" />
 	</bean>
 
 	<!-- OAI-PMH -->

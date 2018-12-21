@@ -1,6 +1,7 @@
 package gr.cite.harvester.core;
 
 import gr.cite.harvester.datastore.model.Harvest;
+import gr.cite.harvester.datastore.model.HarvestType;
 import gr.cite.harvester.datastore.mongodb.HarvesterDatastore;
 
 /*
@@ -10,15 +11,9 @@ import gr.cite.harvester.datastore.mongodb.HarvesterDatastore;
  * 
  */
 public interface Harvestable {
-
-	public HarvesterDatastore getHarvesterDatastore();
-	
-	/*public void setHarvesterDatastore(HarvesterDatastore harvesterDatastore);*/
-
-	public Harvest getHarvest();
-
-	public void setHarvest(Harvest harvest);
-
+	HarvesterDatastore getHarvesterDatastore();
+	Harvest getHarvest();
+	void setHarvest(Harvest harvest);
 	/**
 	 * The {@link Harvester} in which this {@code Harvestable} is registered
 	 * will call this method in order to harvest the source.
@@ -27,7 +22,6 @@ public interface Harvestable {
 	 * @throws Exception
 	 *             if unable to harvest the source
 	 */
-	public Harvest harvest() throws Exception;
-	
-
+	Harvest harvest() throws Exception;
+	HarvestType supports();
 }

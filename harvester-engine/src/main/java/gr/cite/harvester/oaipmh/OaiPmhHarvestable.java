@@ -4,6 +4,7 @@ import gr.cite.femme.client.FemmeException;
 import gr.cite.harvester.core.Harvestable;
 import gr.cite.harvester.datastore.model.Harvest;
 import gr.cite.harvester.datastore.model.HarvestCycle;
+import gr.cite.harvester.datastore.model.HarvestType;
 import gr.cite.harvester.datastore.mongodb.HarvesterDatastore;
 import gr.cite.commons.oaipmh.harvester.OaiPmhHarvester;
 import org.slf4j.Logger;
@@ -135,5 +136,10 @@ public class OaiPmhHarvestable implements Harvestable {
 		}
 
 		return this.harvest;
+	}
+	
+	@Override
+	public HarvestType supports() {
+		return HarvestType.OAIPMH;
 	}
 }

@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import gr.cite.harvester.datastore.model.HarvestCycle;
+import gr.cite.harvester.datastore.model.HarvestType;
 import gr.cite.harvester.datastore.model.Status;
 import gr.cite.harvester.datastore.mongodb.HarvesterDatastore;
 import org.slf4j.Logger;
@@ -155,5 +156,10 @@ public class WCSHarvestable implements Harvestable {
 			logger.error(e2.getMessage(), e2);
 		}*/
 		return this.harvest;
+	}
+	
+	@Override
+	public HarvestType supports() {
+		return HarvestType.WCS;
 	}
 }
